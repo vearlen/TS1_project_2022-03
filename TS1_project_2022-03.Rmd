@@ -1,0 +1,287 @@
+---
+title: "Анализ Временных Рядов, проект"
+author: "Светлана Андреева, Илья Тищенко,  Юлия Егорова"
+date: "2022-03-24"
+output: 
+  html_document:
+    theme: flatly
+    code_folding: hide
+    toc: true
+    toc_float: true
+    font_size: 14
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, cache = TRUE)
+library(tidyverse)
+library(fpp3)
+library(cowplot)
+library(latex2exp)
+library(DT)
+library(forecast)
+library(cowplot)
+library(fable.prophet)
+```
+
+## 1 Импорт  
+*Возьмите любой ряд с ежемесячными наблюдениями.*  
+
+Ряд, количество ночей проведенных туристами, взяли с сайта [eurostat](https://appsso.eurostat.ec.europa.eu/nui/show.do?dataset=tour_occ_nim&lang=en), сам ряд можно скачать с [github](https://github.com/vearlen/TS1_project_2022-03/blob/main/Data/tour_occ_nim_1_Data.csv). Второй ряд, процент безработицы, тоже с сайта [eurostat](https://appsso.eurostat.ec.europa.eu/nui/show.do?dataset=une_rt_m&lang=en) и тоже можно взять копию [csv](https://github.com/vearlen/TS1_project_2022-03/blob/main/Data/ei_lmhr_m_1_Data.csv).
+
+
+```{r input data}
+# nights spend in hotels --------------------------------------------------
+# https://appsso.eurostat.ec.europa.eu/nui/show.do?dataset=tour_occ_nim&lang=en
+df2 = read.csv("Data/tour_occ_nim_1_Data.csv")
+
+# unique(df2$NACE_R2)
+
+df2_ts = df2 %>% 
+  filter(GEO == "European Union - 27 countries (from 2020)",
+         UNIT == "Number",
+         C_RESID == 'Foreign country',
+         UNIT == "Number",
+         NACE_R2 == "Hotels and similar accommodation",
+         Value != ":") %>% 
+  # mutate(GEO = "EU") %>% 
+  select(TIME,Value) %>%
+  mutate(Value = gsub(" ","",Value)) %>% 
+  mutate(Value = as.numeric(Value)) %>% 
+  mutate( Date = str_replace(TIME,"M","-")) %>% 
+  mutate(Date = yearmonth(Date)) %>% 
+  tsibble(index=Date)  %>% 
+  select(Value,Date)
+
+
+# unemployment ratio ------------------------------------------------------
+# https://appsso.eurostat.ec.europa.eu/nui/show.do?dataset=une_rt_m&lang=en
+
+df3 = read.csv("Data/ei_lmhr_m_1_Data.csv")
+
+df3_ts = df3 %>% 
+  filter(INDIC == "Unemployment according to ILO definition - Total",
+         S_ADJ == "Unadjusted data (i.e. neither seasonally adjusted nor calendar adjusted data)",
+         Value != ":") %>% 
+  select(TIME,Value) %>%
+  # mutate(Value = gsub(" ","",Value)) %>% 
+  mutate(Value = as.numeric(Value)) %>% 
+  mutate( Date = str_replace(TIME,"M","-")) %>% 
+  mutate(Date = yearmonth(Date)) %>% 
+  tsibble(index=Date)  %>% 
+  select(Value,Date)
+
+  
+```
+
+## 2 Визуализация    
+*Визуализируйте сам ряд, ряд обычных и сезонных разностей, компоненты ряда, обычные и частные автокорреляционные функции.*  
+Вот сам ряд.  
+
+```{r nights plot}
+ggplot(df2_ts,aes(x=Date,y=Value))+
+  geom_line(color='grey30',lty=1,size=0.4)+
+  # geom_line(data=df2_ts,aes(x=Date,y=Value/1e+7),color='tomato3',size=0.4)+
+  theme_cowplot()+
+  background_grid(size.major = 0.2)+
+  scale_x_yearmonth(date_breaks = "6 month", date_labels = "%y'%m")+
+  labs(title = "Кол-во ночей в гостинице", 
+       x="",y="")+
+  theme(plot.title = element_text(color='black'),
+    plot.subtitle = element_text(color='grey30'),
+    axis.text.x = element_text(color='grey30',size=10,angle=90),
+    axis.text.y = element_text(color='grey30',size=10),
+    axis.title.y = element_text(size=13))
+```
+
+Можно посмотреть на два ряда вместе, потом нам это пригодится.  
+
+```{r autoplot unempl}
+ggplot(df3_ts,aes(x=Date,y=Value*10))+
+  geom_line(color='grey30',lty=5,size=0.4)+
+  geom_line(data=df2_ts,aes(x=Date,y=Value/1e+6),color='tomato3',size=0.4)+
+  theme_cowplot()+
+  background_grid(size.major = 0.2)+
+  scale_x_yearmonth(date_breaks = "6 month", date_labels = "%y'%m")+
+  labs(title = "Кол-во ночей в гостинице", subtitle = "Безработица",
+       x="",y="Безработица * 10
+ночи в гостинице / 1е+06")+
+  theme(plot.title = element_text(color='tomato3'),
+    plot.subtitle = element_text(color='grey30'),
+    axis.text.x = element_text(color='grey30',size=10),
+    axis.text.y = element_text(color='grey30',size=10),
+    axis.title.y = element_text(size=13))
+
+```
+
+**Тут нужен комментарий.**    
+```{r acf pacf nights}
+gg_tsdisplay(df2_ts,plot_type = 'partial')+
+  labs(title = "Ночи проведенные в гостиницах")
+```
+  
+STL разложение.  
+  
+```{r STL}
+stl_model = model(df2_ts,
+                  decomp = STL(Value ~ trend(window = 30) +
+                                 season(window = 50)))
+components(stl_model) %>% autoplot()
+```
+  
+Посмотрим на разности.  
+
+```{r diff}
+nights = df2_ts %>% 
+  rename('N_nights'='Value')
+nights = mutate(nights, diff = difference(N_nights, order_by = Date))
+gg_tsdisplay(nights, y = diff, plot_type = 'partial')
+```
+  
+В том числе сезонные. Очевидно что ковидный период подпортил статистику.
+
+```{r season diff}
+nights = mutate(nights, diff_seas = difference(N_nights, lag = 12, order_by = Date))
+gg_tsdisplay(nights, y = diff_seas, plot_type = 'partial')
+
+```
+  
+Без ковида, все на так уж плохо.  
+```{r season diff w_out covid}
+nights = mutate(nights, diff_seas = difference(N_nights, lag = 12, order_by = Date))
+nights_cut = filter(nights, Date < ymd("2020-03-01"))
+gg_tsdisplay(nights_cut, y = diff_seas, plot_type = 'partial')
+```
+## 3 Стационарность  
+*Является ряд стационарным?*  
+
+## 4 Преобразование  
+*Если разумно применить к исходному ряду какое-либо преобразование, то примените его, мотивировав свой выбор.*  
+
+## 5 Деление  
+*Поделите ряд на тестовую и обучающую выборку.*  
+
+```{r test-train}
+df_all = left_join(nights,df3_ts)
+df_all = rename(df_all,'unempl'='Value')
+df_train <- filter(df_all, Date < ymd ('2021-01-01'))
+df_test <- filter(df_all, Date >= ymd ('2021-01-01'))
+```
+  
+## 6 Модели  
+*Оцените ряд моделей/алгоритмов на тестовой выборке.*  
+
+```{r fit models}
+fit_models <- df_train %>% 
+  model(
+    snaive = SNAIVE(N_nights),
+    arima = ARIMA(N_nights),
+    arima_r = ARIMA(N_nights ~ unempl),
+    arima110_r = ARIMA(N_nights ~ unempl+ pdq(1,1,0)),
+    ets = ETS(N_nights),
+    prophet = prophet(N_nights ~ season ('year', 10, type='additive')),
+    sarima111_1xx_r = ARIMA(N_nights ~ unempl + pdq(1, 1, 1) +PDQ(1, 0:1, 0:2)),
+    theta_decomp = decomposition_model(
+                STL(N_nights ~ season(window=Inf)),
+                THETA(season_adjust),
+                SNAIVE(season_year))
+  )
+```
+
+```{r forecast}
+fct = forecast(fit_models,new_data=df_test)
+```
+```{r accuracy}
+fct %>% 
+  accuracy(df_all) %>% 
+  arrange(MAPE) %>% 
+  # select(-MASE,-RMSSE) %>% 
+  select(-.type) %>% 
+  mutate_if(is.numeric,round,2) %>% 
+  datatable(rownames = FALSE,options=list(pageLength=9), autoHideNavigation = TRUE)
+```
+
+```{r}
+accuracy(fct,df_all) %>% 
+  select(MASE,.model) %>% 
+  ggplot(aes(y=reorder(.model,-MASE),x=MASE,label=round(MASE,2)))+
+  geom_col(width = 0.6,alpha=0.8,color='#0057b7',fill='#ffd700')+
+  geom_text(size=5,hjust = -0.5,color='#0057b7')+
+  theme_cowplot()+
+  scale_x_continuous(expand = expansion(mult = c(0,0.2)))+
+  labs(y="Модели")
+```
+
+  
+## 7 Победитель  
+*Выберите наилучшую модель*  
+
+Ради лучшей визаулизации я обрезал начало ряда, но только для графика!  
+
+```{r display best models, fig.height=8, fig.width=10}
+df_all_begin_cut = filter(df_all, Date > ymd("2018-01-01"))
+# arima_r
+plt_arima_r = fct %>% 
+  filter(.model == "arima110_r") %>% 
+  autoplot(lty=2,fill='#0057b7')+
+  autolayer(df_all_begin_cut)+
+  theme_cowplot()+
+  background_grid(size.major = 0.2)+
+  scale_x_yearmonth(date_breaks = "4 month", date_labels = "%y'%m")+
+  theme(axis.text.x = element_text(color='grey',size=10,angle=90))+
+  labs(title = "ARIMA with regression")
+
+# SARIMA
+plt_sarima = fct %>% 
+  filter(.model == "sarima111_1xx_r") %>% 
+  autoplot(lty=2,fill='#ffcc00')+
+  autolayer(df_all_begin_cut)+
+  theme_cowplot()+
+  background_grid(size.major = 0.2)+
+  scale_x_yearmonth(date_breaks = "4 month", date_labels = "%y'%m")+
+  theme(axis.text.x = element_text(color='grey',size=10,angle=90))+
+  labs(title = "SARIMA with regression")
+
+# ets
+plt_ets = fct %>% 
+  filter(.model == "ets") %>% 
+  autoplot(lty=2,fill='grey20')+
+  autolayer(df_all_begin_cut)+
+  theme_cowplot()+
+  background_grid(size.major = 0.2)+
+  scale_x_yearmonth(date_breaks = "4 month", date_labels = "%y'%m")+
+  theme(axis.text.x = element_text(color='grey',size=10,angle=90))+
+  labs(title = "ETS")
+
+plot_grid(plt_arima_r,plt_sarima,plt_ets,nrow=3)
+
+```
+  
+### Средняя модель  
+  
+```{r average models}
+av_model <- fit_models %>% 
+  mutate(mean = (arima110_r + sarima111_1xx_r)/2,
+         three = (arima110_r + sarima111_1xx_r+prophet)/3)
+
+```
+
+```{r forecast average}
+fct_w_av = forecast(av_model,new_data = df_test)
+```
+
+```{r compare aver forecast}
+fct_w_av %>% 
+  accuracy(df_all) %>% 
+  arrange(MAPE) %>% 
+  select(-.type) %>% 
+  mutate_if(is.numeric,round,2) %>% 
+  datatable(rownames = FALSE,options=list(pageLength=9), autoHideNavigation = TRUE)
+```
+Все равно ARIMA c регрессией осталась лучшей. 
+
+## 8 Удивить!  
+
+- ну можно взять как раз разницу безработицы и впихнуть в лучшую модель
+
+## 9 Случай из жизни  
+
