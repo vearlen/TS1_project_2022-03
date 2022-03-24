@@ -151,6 +151,7 @@ nights = mutate(nights, diff_seas = difference(N_nights, lag = 12, order_by = Da
 nights_cut = filter(nights, Date < ymd("2020-03-01"))
 gg_tsdisplay(nights_cut, y = diff_seas, plot_type = 'partial')
 ```
+  
 ## 3 Стационарность  
 *Является ряд стационарным?*  
 
