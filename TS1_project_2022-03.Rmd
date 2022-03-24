@@ -164,6 +164,8 @@ gg_tsdisplay(nights_cut, y = diff_seas, plot_type = 'partial')
 ```{r test-train}
 df_all = left_join(nights,df3_ts)
 df_all = rename(df_all,'unempl'='Value')
+df_all = mutate(df_all, diff_unempl = difference(unempl,1),
+                sdiff_unempl = difference(unempl,12))
 df_train <- filter(df_all, Date < ymd ('2021-01-01'))
 df_test <- filter(df_all, Date >= ymd ('2021-01-01'))
 ```
@@ -234,7 +236,7 @@ plt_arima_r = fct %>%
 # SARIMA
 plt_sarima = fct %>% 
   filter(.model == "sarima111_1xx_r") %>% 
-  autoplot(lty=2,fill='#ffcc00')+
+  autoplot(lty=2,fill='#dbaf00')+
   autolayer(df_all_begin_cut)+
   theme_cowplot()+
   background_grid(size.major = 0.2)+
@@ -282,16 +284,16 @@ fct_w_av %>%
 
 ## 8 Удивить!  
 
-- ну можно взять как раз разницу безработицы и впихнуть в лучшую модель  
+Можно взять как раз разницу безработицы и впихнуть в лучшую модель, но этим никого не удивить.    
 
 ```{r autoplot unempl diff}
-ggplot(df3_ts,aes(x=Date,y=difference(Value*100)))+
+ggplot(df_all,aes(x=Date,y=sdiff_unempl*100))+
   geom_line(color='grey30',lty=5,size=0.4)+
-  geom_line(data=df2_ts,aes(x=Date,y=Value/1e+6),color='#0066cc',size=0.4)+
+  geom_line(data=df_all,aes(x=Date,y=N_nights/1e+6),color='#0066cc',size=0.4)+
   theme_cowplot()+
   background_grid(size.major = 0.2)+
   scale_x_yearmonth(date_breaks = "6 month", date_labels = "%y'%m")+
-  labs(title = "Кол-во ночей в гостинице", subtitle = "Безработица прирост (х100)",
+  labs(title = "Кол-во ночей в гостинице", subtitle = "Безработица сезонный прирост (х100)",
        x="",y="Безработица прирост * 100
 ночи в гостинице / 1е+06")+
   theme(plot.title = element_text(color='#0066cc'),
@@ -299,6 +301,72 @@ ggplot(df3_ts,aes(x=Date,y=difference(Value*100)))+
     axis.text.x = element_text(color='grey30',size=10,angle=90),
     axis.text.y = element_text(color='grey30',size=10),
     axis.title.y = element_text(size=13))
+
+```
+```{r fit season models}
+
+fit_models_seasons <- df_train %>% 
+  model(
+    arima_r = ARIMA(N_nights ~ diff_unempl),
+    arima110_r = ARIMA(N_nights ~ diff_unempl+ pdq(1,1,0)),
+    arima110_r_s = ARIMA(N_nights ~ sdiff_unempl+ pdq(1,1,0)),
+    sarima111_1xx_r = ARIMA(N_nights ~ diff_unempl + pdq(1, 1, 1) +PDQ(1, 0:1, 0:2)),
+    sarima111_1xx_r_s = ARIMA(N_nights ~ sdiff_unempl + pdq(1, 1, 1) +PDQ(1, 0:1, 0:2)),
+      )
+```
+```{r forecast seas}
+fct_season = forecast(fit_models_seasons,new_data=df_test)
+```
+
+```{r accuracy season}
+fct_season %>% 
+  accuracy(df_all) %>% 
+  arrange(MAPE) %>% 
+  select(-.type) %>% 
+  mutate_if(is.numeric,round,2) %>% 
+  datatable(rownames = FALSE,options=list(pageLength=9), autoHideNavigation = TRUE)
+```
+  
+Но c cезонной безработицей модель не получилась лучше.  
+
+```{r compare best, fig.width=10, fig.height=7}
+
+
+# ets
+plt_arima_s = fct_season %>% 
+  filter(.model == "arima110_r_s") %>% 
+  autoplot(lty=2,fill='#dbaf00')+
+  autolayer(df_all_begin_cut)+
+  theme_cowplot()+
+  background_grid(size.major = 0.2)+
+  scale_x_yearmonth(date_breaks = "4 month", date_labels = "%y'%m")+
+  theme(axis.text.x = element_text(color='grey',size=10,angle=90))+
+  labs(title = "ARIMA with regression on seasonal difference")
+
+plot_grid(plt_arima_r,plt_arima_s,nrow = 2)
+
+```
+  
+Еще можно предсказать в будущее.  
+
+```{r predict future}
+
+fit_full <- model(df_all,
+  ARIMA(N_nights ~ 0 + pdq(1,1,0))
+)
+
+fct_future = forecast(fit_full,h=24)
+```
+```{r plot future, fig.width=10, fig.height=6}
+fct_future %>% 
+  autoplot(color="#0066cc",alpha=0.7)+
+  autolayer(df_all_begin_cut)+
+  scale_x_yearmonth(date_breaks = "4 month", date_labels = "%y'%m")+
+  theme_cowplot()+
+  background_grid()+
+   theme(axis.text.x = element_text(color='grey',size=10,angle=90))+
+  labs(title="Предсказание в будущее",
+       subtitle = "ARIMA")
 
 ```
   
