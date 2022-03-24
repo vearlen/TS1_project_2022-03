@@ -80,7 +80,7 @@ df3_ts = df3 %>%
 ```{r nights plot}
 ggplot(df2_ts,aes(x=Date,y=Value))+
   geom_line(color='grey30',lty=1,size=0.4)+
-  # geom_line(data=df2_ts,aes(x=Date,y=Value/1e+7),color='tomato3',size=0.4)+
+  # geom_line(data=df2_ts,aes(x=Date,y=Value/1e+7),color='#0066cc',size=0.4)+
   theme_cowplot()+
   background_grid(size.major = 0.2)+
   scale_x_yearmonth(date_breaks = "6 month", date_labels = "%y'%m")+
@@ -98,16 +98,16 @@ ggplot(df2_ts,aes(x=Date,y=Value))+
 ```{r autoplot unempl}
 ggplot(df3_ts,aes(x=Date,y=Value*10))+
   geom_line(color='grey30',lty=5,size=0.4)+
-  geom_line(data=df2_ts,aes(x=Date,y=Value/1e+6),color='tomato3',size=0.4)+
+  geom_line(data=df2_ts,aes(x=Date,y=Value/1e+6),color='#0066cc',size=0.4)+
   theme_cowplot()+
   background_grid(size.major = 0.2)+
   scale_x_yearmonth(date_breaks = "6 month", date_labels = "%y'%m")+
   labs(title = "Кол-во ночей в гостинице", subtitle = "Безработица",
        x="",y="Безработица * 10
 ночи в гостинице / 1е+06")+
-  theme(plot.title = element_text(color='tomato3'),
+  theme(plot.title = element_text(color='#0066cc'),
     plot.subtitle = element_text(color='grey30'),
-    axis.text.x = element_text(color='grey30',size=10),
+    axis.text.x = element_text(color='grey30',size=10,angle=90),
     axis.text.y = element_text(color='grey30',size=10),
     axis.title.y = element_text(size=13))
 
@@ -205,7 +205,7 @@ fct %>%
 accuracy(fct,df_all) %>% 
   select(MASE,.model) %>% 
   ggplot(aes(y=reorder(.model,-MASE),x=MASE,label=round(MASE,2)))+
-  geom_col(width = 0.6,alpha=0.8,color='#0057b7',fill='#ffd700')+
+  geom_col(width = 0.6,alpha=0.9,color='#0057b7',fill='#ffd700')+
   geom_text(size=5,hjust = -0.5,color='#0057b7')+
   theme_cowplot()+
   scale_x_continuous(expand = expansion(mult = c(0,0.2)))+
@@ -282,7 +282,25 @@ fct_w_av %>%
 
 ## 8 Удивить!  
 
-- ну можно взять как раз разницу безработицы и впихнуть в лучшую модель
+- ну можно взять как раз разницу безработицы и впихнуть в лучшую модель  
 
+```{r autoplot unempl diff}
+ggplot(df3_ts,aes(x=Date,y=difference(Value*100)))+
+  geom_line(color='grey30',lty=5,size=0.4)+
+  geom_line(data=df2_ts,aes(x=Date,y=Value/1e+6),color='#0066cc',size=0.4)+
+  theme_cowplot()+
+  background_grid(size.major = 0.2)+
+  scale_x_yearmonth(date_breaks = "6 month", date_labels = "%y'%m")+
+  labs(title = "Кол-во ночей в гостинице", subtitle = "Безработица прирост (х100)",
+       x="",y="Безработица прирост * 100
+ночи в гостинице / 1е+06")+
+  theme(plot.title = element_text(color='#0066cc'),
+    plot.subtitle = element_text(color='grey30'),
+    axis.text.x = element_text(color='grey30',size=10,angle=90),
+    axis.text.y = element_text(color='grey30',size=10),
+    axis.title.y = element_text(size=13))
+
+```
+  
 ## 9 Случай из жизни  
 
