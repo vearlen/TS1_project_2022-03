@@ -21,6 +21,7 @@ library(DT)
 library(forecast)
 library(cowplot)
 library(fable.prophet)
+library(urca) 
 ```
 
 ## 1 Импорт  
@@ -114,6 +115,8 @@ ggplot(df3_ts,aes(x=Date,y=Value*10))+
 ```
 
 **Тут нужен комментарий.**    
+Кажется у нас нет особой сезонности на pacf графике, ну по крайней мере не больше второго лага точно.  
+
 ```{r acf pacf nights}
 gg_tsdisplay(df2_ts,plot_type = 'partial')+
   labs(title = "Ночи проведенные в гостиницах")
@@ -134,27 +137,73 @@ components(stl_model) %>% autoplot()
 nights = df2_ts %>% 
   rename('N_nights'='Value')
 nights = mutate(nights, diff = difference(N_nights, order_by = Date))
-gg_tsdisplay(nights, y = diff, plot_type = 'partial')
+gg_tsdisplay(nights, y = diff, plot_type = 'partial')+
+  labs(title="Разность ряда")
 ```
   
-В том числе сезонные. Очевидно что ковидный период подпортил статистику.
+В том числе сезонные. Очевидно что ковидный период подпортил статистику. Разница не выглядит стационарной.
 
 ```{r season diff}
 nights = mutate(nights, diff_seas = difference(N_nights, lag = 12, order_by = Date))
-gg_tsdisplay(nights, y = diff_seas, plot_type = 'partial')
+gg_tsdisplay(nights, y = diff_seas, plot_type = 'partial')+
+  labs(title="Сезонная разность (12 месяцев)")
 
 ```
   
-Без ковида, все на так уж плохо.  
+Если отрезать ковидный период, то разница уже больше похожа на стационарный ряд. ARIMA (p,1,q)?  
+
 ```{r season diff w_out covid}
 nights = mutate(nights, diff_seas = difference(N_nights, lag = 12, order_by = Date))
 nights_cut = filter(nights, Date < ymd("2020-03-01"))
-gg_tsdisplay(nights_cut, y = diff_seas, plot_type = 'partial')
+gg_tsdisplay(nights_cut, y = diff_seas, plot_type = 'partial')+
+  labs(title="Сезонная разность (12 мес) без последних двух лет")
 ```
   
 ## 3 Стационарность  
-*Является ряд стационарным?*  
+  
+*Является ли ряд стационарным?*  
+  
+### ADF с константой    
 
+```{r ADF test}
+#3. ADF с константой
+# H0: ts = ARIMA(p, 1, q) + trend (нестационарный ряд)
+# Ha: ts = ARIMA(p, 0, q) + const (стационарный ряд)
+summary(ur.df(nights$N_nights, type = 'drift',
+                selectlags = 'AIC'))# H0 отвергается на 5% уровне значимости
+                                    # H0 отвергается на 1% уровне значимости
+                                    # первое наблюдаемое значение -3.0 как в лекциях
+                                    # сравниваем с первой строкой tau2
+```
+  
+Наблюдаемое значение -5.79, критическое -2.88 (на 5% уровне значимости).  Наблюдаемое меньше, т.е. Н0 отвергается - ряд стационарный.  
+
+
+ ### KPSS c константой  
+
+```{r KPSS test}
+# KPSS с константой
+# H0: ts = mu + stat (стационарный ряд)
+# Ha: ts = mu + stat + rw (нестационарный ряд)
+summary(ur.kpss(nights$N_nights, type = 'mu'))  # H0 не отвергается на 5% уровне значимости
+                                                # наблюдаемое меньше чем критическое
+```
+  
+Получается что наблюдаемое значение статистики меньше чем критическое (на 5% уровне), т.е. Н0 не отвергается, значит ряд стационарный.  
+    
+Подсчитаем также KPSS тест с трендом. **не уверен что это нужно** 
+  
+```{r KPSS trend}
+# 2. KPSS с трендом
+# H0: ts = trend + stat (стационарный ряд)
+# Ha: ts = trend + stat + rw (нестационарный ряд)
+summary( ur.kpss(nights$N_nights, type = 'tau')) # H0 отвергается на 5% уровне значимости
+                                                 # наблюдаемое больше чем критическое
+```
+  
+Выходит что наблюдаемое значение больше чем критическое (на 5% уровне значимости), значит H0 отвергается. Вероятно это можно объяснить тем, что у нас есть тренд.  
+  
+  
 ## 4 Преобразование  
 *Если разумно применить к исходному ряду какое-либо преобразование, то примените его, мотивировав свой выбор.*  
 
@@ -189,6 +238,11 @@ fit_models <- df_train %>%
                 SNAIVE(season_year))
   )
 ```
+  
+Можно посмотреть отчет.   
+```{r report arima}
+report(fit_models$arima[[1]])
+```
 
 ```{r forecast}
 fct = forecast(fit_models,new_data=df_test)
@@ -212,6 +266,27 @@ accuracy(fct,df_all) %>%
   theme_cowplot()+
   scale_x_continuous(expand = expansion(mult = c(0,0.2)))+
   labs(y="Модели")
+```
+
+**можно запустить кросс валидацию**
+```{r}
+df_slide = slide_tsibble(df_all,
+                         .size=24,.step=3)
+models_slide = model(df_slide,
+    snaive = SNAIVE(N_nights),
+    arima = ARIMA(N_nights),
+    arima110_r = ARIMA(N_nights ~ unempl+ pdq(1,1,0)),
+    sarima111_1xx_r = ARIMA(N_nights ~ unempl + pdq(1, 1, 1) +PDQ(1, 0:1, 0:2)),
+    theta_decomp = decomposition_model(
+                STL(N_nights ~ season(window=Inf)),
+                THETA(season_adjust),
+                SNAIVE(season_year))
+  )
+```
+
+```{r}
+# нужно спрогнозировать безработицу чтобы сделать прогноз
+# fct_slide = forecast(models_slide,h=12)
 ```
 
   
