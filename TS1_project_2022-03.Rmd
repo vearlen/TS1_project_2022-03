@@ -4,6 +4,7 @@ author: "Светлана Андреева, Юлия Егорова, Илья Т
 date: "2022-03-24"
 output: 
   html_document:
+    keep_md: true
     theme: flatly
     code_folding: hide
     toc: true
@@ -21,7 +22,7 @@ library(DT)
 library(forecast)
 library(cowplot)
 library(fable.prophet)
-library(urca) 
+library(urca) # tests
 ```
 
 ## 1 Импорт  
