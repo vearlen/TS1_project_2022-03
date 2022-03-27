@@ -13,7 +13,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, cache = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, cache = FALSE)
 library(tidyverse)
 library(fpp3)
 library(cowplot)
@@ -252,11 +252,7 @@ fit_models <- df_train %>%
   )
 ```
 
-Можно посмотреть отчет.
 
-```{r report arima}
-report(fit_models$arima110_r[[1]])
-```
 
 ```{r forecast}
 fct = forecast(fit_models,new_data=df_test)
@@ -272,15 +268,6 @@ fct %>%
   datatable(rownames = FALSE,options=list(pageLength=9), autoHideNavigation = TRUE)
 ```
 
-```{r residuals from arima110_r}
-# fct_temp = fct %>% 
-#   filter(.model == "arima110_r") 
-# 
-# fct_proc = bind_cols(df_test,"arima110_r_fit" =fct_temp$.mean) %>% 
-#   mutate(resid = N_nights-arima110_r_fit)
-
-# View(fct_proc)
-```
 
 ```{r}
 accuracy(fct,df_all) %>% 
