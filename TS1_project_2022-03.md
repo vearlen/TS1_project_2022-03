@@ -266,7 +266,7 @@ summary(ur.kpss(nights$N_nights, type = 'mu'))  # H0 не отвергается
 # 2. KPSS с трендом
 # H0: ts = trend + stat (стационарный ряд)
 # Ha: ts = trend + stat + rw (нестационарный ряд)
-summary( ur.kpss(nights$N_nights, type = 'tau')) # H0 отвергается на 5% уровне значимости
+summary(ur.kpss(nights$N_nights, type = 'tau')) # H0 отвергается на 5% уровне значимости
 ```
 
 ```
@@ -303,8 +303,21 @@ df_all = left_join(nights,df3_ts)
 df_all = rename(df_all,'unempl'='Value')
 df_all = mutate(df_all, diff_unempl = difference(unempl,1),
                 sdiff_unempl = difference(unempl,12))
-df_train <- filter(df_all, Date < ymd ('2021-01-01'))
-df_test <- filter(df_all, Date >= ymd ('2021-01-01'))
+
+# считаем макс мин для масштабирования
+min_nights = min(df_all$diff_seas,na.rm = TRUE)
+max_nights = max(df_all$diff_seas,na.rm = TRUE)
+min_unmp = min(df_all$sdiff_unempl,na.rm = TRUE)
+max_unmp = max(df_all$sdiff_unempl,na.rm = TRUE)
+
+# масштабируем
+df_all_sc = df_all %>% 
+  mutate (nights_sdif_sc = (diff_seas-min_nights)/(max_nights-min_nights),
+          unempl_sdif_sc = (sdiff_unempl-min_unmp)/(max_unmp-min_unmp))
+
+# делим на тестовую и обучающую
+df_train <- filter(df_all_sc, Date < ymd ('2021-01-01'))
+df_test <- filter(df_all_sc, Date >= ymd ('2021-01-01'))
 ```
   
 ## 6 Модели  
@@ -316,11 +329,8 @@ fit_models <- df_train %>%
   model(
     snaive = SNAIVE(N_nights),
     arima = ARIMA(N_nights),
-    arima_r = ARIMA(N_nights ~ unempl),
-    arima110_r = ARIMA(N_nights ~ unempl+ pdq(1,1,0)),
     ets = ETS(N_nights),
     prophet = prophet(N_nights ~ season ('year', 10, type='additive')),
-    sarima111_1xx_r = ARIMA(N_nights ~ unempl + pdq(1, 1, 1) +PDQ(1, 0:1, 0:2)),
     theta_decomp = decomposition_model(
                 STL(N_nights ~ season(window=Inf)),
                 THETA(season_adjust),
@@ -331,26 +341,20 @@ fit_models <- df_train %>%
 Можно посмотреть отчет.   
 
 ```r
-report(fit_models$arima[[1]])
+report(fit_models$arima110_r[[1]])
 ```
 
 ```
-## Series: N_nights 
-## Model: ARIMA(2,1,2)(1,1,1)[12] 
-## 
-## Coefficients:
-##          ar1      ar2      ma1     ma2     sar1     sma1
-##       1.6142  -0.9114  -1.2573  0.6472  -0.2896  -0.5098
-## s.e.  0.1110   0.0861   0.1353  0.1362   0.2270   0.2459
-## 
-## sigma^2 estimated as 3.826e+13:  log likelihood=-1416.39
-## AIC=2846.79   AICc=2848.28   BIC=2863.72
+## NULL model
 ```
 
 
 ```r
 fct = forecast(fit_models,new_data=df_test)
 ```
+
+
+
 
 ```r
 fct %>% 
@@ -369,9 +373,20 @@ fct %>%
 
 
 ```r
+# fct_temp = fct %>% 
+#   filter(.model == "arima110_r") 
+# 
+# fct_proc = bind_cols(df_test,"arima110_r_fit" =fct_temp$.mean) %>% 
+#   mutate(resid = N_nights-arima110_r_fit)
+
+# View(fct_proc)
+```
+
+
+```r
 accuracy(fct,df_all) %>% 
-  select(MASE,.model) %>% 
-  ggplot(aes(y=reorder(.model,-MASE),x=MASE,label=round(MASE,2)))+
+  select(MAPE,.model) %>% 
+  ggplot(aes(y=reorder(.model,-MAPE),x=MAPE,label=round(MAPE,0)))+
   geom_col(width = 0.6,alpha=0.9,color='#0057b7',fill='#ffd700')+
   geom_text(size=5,hjust = -0.5,color='#0057b7')+
   theme_cowplot()+
@@ -380,29 +395,6 @@ accuracy(fct,df_all) %>%
 ```
 
 ![](TS1_project_2022-03_files/figure-html/unnamed-chunk-1-1.png)<!-- -->
-
-**можно запустить кросс валидацию**
-
-```r
-df_slide = slide_tsibble(df_all,
-                         .size=24,.step=3)
-models_slide = model(df_slide,
-    snaive = SNAIVE(N_nights),
-    arima = ARIMA(N_nights),
-    arima110_r = ARIMA(N_nights ~ unempl+ pdq(1,1,0)),
-    sarima111_1xx_r = ARIMA(N_nights ~ unempl + pdq(1, 1, 1) +PDQ(1, 0:1, 0:2)),
-    theta_decomp = decomposition_model(
-                STL(N_nights ~ season(window=Inf)),
-                THETA(season_adjust),
-                SNAIVE(season_year))
-  )
-```
-
-
-```r
-# нужно спрогнозировать безработицу чтобы сделать прогноз
-# fct_slide = forecast(models_slide,h=12)
-```
 
   
 ## 7 Победитель  
@@ -413,83 +405,42 @@ models_slide = model(df_slide,
 
 ```r
 df_all_begin_cut = filter(df_all, Date > ymd("2018-01-01"))
-# arima_r
-plt_arima_r = fct %>% 
-  filter(.model == "arima110_r") %>% 
+
+# prophet
+plt_prophet = fct %>% 
+  filter(.model == "prophet") %>% 
   autoplot(lty=2,fill='#0057b7')+
   autolayer(df_all_begin_cut)+
   theme_cowplot()+
   background_grid(size.major = 0.2)+
   scale_x_yearmonth(date_breaks = "4 month", date_labels = "%y'%m")+
   theme(axis.text.x = element_text(color='grey',size=10,angle=90))+
-  labs(title = "ARIMA with regression")
+  labs(title = "PROPHET")
 
-# SARIMA
-plt_sarima = fct %>% 
-  filter(.model == "sarima111_1xx_r") %>% 
+# THETA
+plt_theta = fct %>% 
+  filter(.model == "theta_decomp") %>% 
   autoplot(lty=2,fill='#dbaf00')+
   autolayer(df_all_begin_cut)+
   theme_cowplot()+
   background_grid(size.major = 0.2)+
   scale_x_yearmonth(date_breaks = "4 month", date_labels = "%y'%m")+
   theme(axis.text.x = element_text(color='grey',size=10,angle=90))+
-  labs(title = "SARIMA with regression")
+  labs(title = "THETA")
 
-# ets
-plt_ets = fct %>% 
-  filter(.model == "ets") %>% 
-  autoplot(lty=2,fill='grey20')+
-  autolayer(df_all_begin_cut)+
-  theme_cowplot()+
-  background_grid(size.major = 0.2)+
-  scale_x_yearmonth(date_breaks = "4 month", date_labels = "%y'%m")+
-  theme(axis.text.x = element_text(color='grey',size=10,angle=90))+
-  labs(title = "ETS")
-
-plot_grid(plt_arima_r,plt_sarima,plt_ets,nrow=3)
+plot_grid(plt_prophet,plt_theta,nrow=2)
 ```
 
 ![](TS1_project_2022-03_files/figure-html/display best models-1.png)<!-- -->
   
-### Средняя модель  
-  
-
-```r
-av_model <- fit_models %>% 
-  mutate(mean = (arima110_r + sarima111_1xx_r)/2,
-         three = (arima110_r + sarima111_1xx_r+prophet)/3)
-```
-
-
-```r
-fct_w_av = forecast(av_model,new_data = df_test)
-```
-
-
-```r
-fct_w_av %>% 
-  accuracy(df_all) %>% 
-  arrange(MAPE) %>% 
-  select(-.type) %>% 
-  mutate_if(is.numeric,round,2) %>% 
-  datatable(rownames = FALSE,options=list(pageLength=9), autoHideNavigation = TRUE)
-```
-
-```{=html}
-<div id="htmlwidget-74810f493c8b6eea80cc" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-74810f493c8b6eea80cc">{"x":{"filter":"none","autoHideNavigation":true,"data":[["arima110_r","mean","three","sarima111_1xx_r","prophet","theta_decomp","arima_r","arima","ets","snaive"],[8816939.29,5458427.66,6787620.63,2099916.03,9565318.74,744794.49,17681963.07,27017217.24,-15793338.43,8331459.67],[16366203,15111740.81,17506722.79,14644554.62,22483661.59,16013294.9,23822474.31,29832721.8,22567128.93,28309733.58],[11872146.16,11675417.5,13338483.74,12259733.8,16968554.88,13165861.86,18930739.18,27017217.24,18731603.58,25260921.33],[21.62,-6.1,-1.78,-33.81,7.69,-37.67,65.59,171.13,-170.02,-157.86],[49.05,53,60.57,74.48,83.81,85.08,97.15,171.13,180.11,259.19],[1.11,1.09,1.24,1.14,1.58,1.23,1.76,2.52,1.75,2.35],[0.64,0.59,0.69,0.58,0.88,0.63,0.94,1.17,0.89,1.11],[0.79,0.79,0.8,0.79,0.8,0.8,0.77,0.69,0.77,0.74]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>.model<\/th>\n      <th>ME<\/th>\n      <th>RMSE<\/th>\n      <th>MAE<\/th>\n      <th>MPE<\/th>\n      <th>MAPE<\/th>\n      <th>MASE<\/th>\n      <th>RMSSE<\/th>\n      <th>ACF1<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":9,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8]}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[9,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
-```
-Все равно ARIMA c регрессией осталась лучшей. 
-
 ## 8 Удивить!  
 
-Можно взять как раз разницу безработицы и впихнуть в лучшую модель, но этим никого не удивить.    
 
 
 ```r
 ggplot(df_all,aes(x=Date,y=sdiff_unempl*100))+
   geom_line(color='grey30',lty=5,size=0.4)+
-  geom_line(data=df_all,aes(x=Date,y=N_nights/1e+6),color='#0066cc',size=0.4)+
+  geom_line(data=df_all,aes(x=Date,y=N_nights/1e+06),color='#0066cc',size=0.4)+
   theme_cowplot()+
   background_grid(size.major = 0.2)+
   scale_x_yearmonth(date_breaks = "6 month", date_labels = "%y'%m")+
@@ -505,66 +456,150 @@ ggplot(df_all,aes(x=Date,y=sdiff_unempl*100))+
 
 ![](TS1_project_2022-03_files/figure-html/autoplot unempl diff-1.png)<!-- -->
 
+
 ```r
-fit_models_seasons <- df_train %>% 
+fit_models_sns <- df_train %>% 
   model(
-    arima_r = ARIMA(N_nights ~ diff_unempl),
-    arima110_r = ARIMA(N_nights ~ diff_unempl+ pdq(1,1,0)),
+    arima_r = ARIMA(N_nights ~ unempl),
+    arima_r_s = ARIMA(N_nights ~ sdiff_unempl),
+    arima110_r = ARIMA(N_nights ~ unempl+ pdq(1,1,0)),
     arima110_r_s = ARIMA(N_nights ~ sdiff_unempl+ pdq(1,1,0)),
-    sarima111_1xx_r = ARIMA(N_nights ~ diff_unempl + pdq(1, 1, 1) +PDQ(1, 0:1, 0:2)),
-    sarima111_1xx_r_s = ARIMA(N_nights ~ sdiff_unempl + pdq(1, 1, 1) +PDQ(1, 0:1, 0:2)),
-      )
-```
-
-```r
-fct_season = forecast(fit_models_seasons,new_data=df_test)
+    sarima111_1xx_r = ARIMA(N_nights ~ unempl + pdq(1, 1, 1) + PDQ(1, 0:1, 0:2)),
+    sarima111_1xx_r_s = ARIMA(N_nights ~ sdiff_unempl + pdq(1, 1, 1) + PDQ(1, 0:1, 0:2))
+  )
 ```
 
 
 ```r
-fct_season %>% 
+fct_sns = forecast(fit_models_sns,df_test)
+```
+
+
+```r
+fct_sns %>% 
   accuracy(df_all) %>% 
   arrange(MAPE) %>% 
+  # select(-MASE,-RMSSE) %>% 
   select(-.type) %>% 
-  mutate_if(is.numeric,round,2) %>% 
+  mutate_if(is.numeric,round,3) %>% 
   datatable(rownames = FALSE,options=list(pageLength=9), autoHideNavigation = TRUE)
 ```
 
 ```{=html}
-<div id="htmlwidget-6194c7a1d66819ebf60a" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-6194c7a1d66819ebf60a">{"x":{"filter":"none","autoHideNavigation":true,"data":[["arima110_r","arima110_r_s","sarima111_1xx_r_s","arima_r","sarima111_1xx_r"],[9517219.33,8615610.87,14477246.75,20259246.55,-240356.39],[18994028.25,15853896.07,19257062.14,29538376.76,16745488.75],[13661581.54,11790690.16,15041963.8,22492380.12,14385875.71],[8.66,32.14,67.95,40.62,-64.38],[54.41,55.43,82.13,97.02,106.04],[1.27,1.1,1.4,2.1,1.34],[0.75,0.62,0.76,1.16,0.66],[0.8,0.77,0.75,0.81,0.8]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>.model<\/th>\n      <th>ME<\/th>\n      <th>RMSE<\/th>\n      <th>MAE<\/th>\n      <th>MPE<\/th>\n      <th>MAPE<\/th>\n      <th>MASE<\/th>\n      <th>RMSSE<\/th>\n      <th>ACF1<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":9,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8]}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[9,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-28d3b7219a57a2238666" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-28d3b7219a57a2238666">{"x":{"filter":"none","autoHideNavigation":true,"data":[["arima110_r","arima_r_s","arima110_r_s","sarima111_1xx_r","sarima111_1xx_r_s","arima_r"],[8816939.288,8615610.869,8615610.869,2099916.026,14477246.754,17681963.075],[16366203.001,15853896.068,15853896.068,14644554.621,19257062.138,23822474.311],[11872146.16,11790690.165,11790690.165,12259733.802,15041963.803,18930739.179],[21.624,32.14,32.14,-33.814,67.952,65.59],[49.049,55.432,55.432,74.484,82.13,97.146],[1.107,1.099,1.099,1.143,1.402,1.765],[0.644,0.624,0.624,0.576,0.758,0.937],[0.79,0.772,0.772,0.794,0.75,0.771]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>.model<\/th>\n      <th>ME<\/th>\n      <th>RMSE<\/th>\n      <th>MAE<\/th>\n      <th>MPE<\/th>\n      <th>MAPE<\/th>\n      <th>MASE<\/th>\n      <th>RMSSE<\/th>\n      <th>ACF1<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":9,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8]}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[9,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
 ```
+
+```r
+report(fit_models_sns$arima_r_s[[1]]) # авто с десезон безработицей
+```
+
+```
+## Series: N_nights 
+## Model: LM w/ ARIMA(1,1,0)(0,1,1)[12] errors 
+## 
+## Coefficients:
+##          ar1     sma1  sdiff_unempl
+##       0.4315  -0.6506      -4365068
+## s.e.  0.1114   0.2152       4113844
+## 
+## sigma^2 estimated as 4.098e+13:  log likelihood=-1221.09
+## AIC=2450.18   AICc=2450.69   BIC=2459.85
+```
+
+```r
+report(fit_models_sns$arima110_r[[1]]) # полу-авто
+```
+
+```
+## Series: N_nights 
+## Model: LM w/ ARIMA(1,1,0)(0,1,1)[12] errors 
+## 
+## Coefficients:
+##          ar1     sma1    unempl
+##       0.3898  -0.6795  -7838025
+## s.e.  0.1053   0.1817   4717076
+## 
+## sigma^2 estimated as 4.188e+13:  log likelihood=-1421.71
+## AIC=2851.41   AICc=2851.93   BIC=2861.09
+```
+
+### Средняя модель  
   
-Но c cезонной безработицей модель не получилась лучше.  
+
+```r
+av_model <- fit_models_sns %>% 
+  mutate(mean = (arima110_r + arima_r_s)/2)
+```
 
 
 ```r
-# ets
-plt_arima_s = fct_season %>% 
-  filter(.model == "arima110_r_s") %>% 
+fct_w_av = forecast(av_model,new_data = df_test)
+```
+
+
+```r
+fct_w_av %>% 
+  accuracy(df_all) %>% 
+  arrange(MAPE) %>% 
+  select(-.type) %>% 
+  mutate_if(is.numeric,round,2) %>% 
+  datatable(rownames = FALSE,options=list(pageLength=10), autoHideNavigation = TRUE)
+```
+
+```{=html}
+<div id="htmlwidget-74810f493c8b6eea80cc" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-74810f493c8b6eea80cc">{"x":{"filter":"none","autoHideNavigation":true,"data":[["arima110_r","mean","three","sarima111_1xx_r","prophet","theta_decomp","arima_r","arima","ets","snaive"],[8816939.29,5458427.66,6787620.63,2099916.03,9565318.74,744794.49,17681963.07,27017217.24,-15793338.43,8331459.67],[16366203,15111740.81,17506722.79,14644554.62,22483661.59,16013294.9,23822474.31,29832721.8,22567128.93,28309733.58],[11872146.16,11675417.5,13338483.74,12259733.8,16968554.88,13165861.86,18930739.18,27017217.24,18731603.58,25260921.33],[21.62,-6.1,-1.78,-33.81,7.69,-37.67,65.59,171.13,-170.02,-157.86],[49.05,53,60.57,74.48,83.81,85.08,97.15,171.13,180.11,259.19],[1.11,1.09,1.24,1.14,1.58,1.23,1.76,2.52,1.75,2.35],[0.64,0.59,0.69,0.58,0.88,0.63,0.94,1.17,0.89,1.11],[0.79,0.79,0.8,0.79,0.8,0.8,0.77,0.69,0.77,0.74]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>.model<\/th>\n      <th>ME<\/th>\n      <th>RMSE<\/th>\n      <th>MAE<\/th>\n      <th>MPE<\/th>\n      <th>MAPE<\/th>\n      <th>MASE<\/th>\n      <th>RMSSE<\/th>\n      <th>ACF1<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8]}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+```
+Все равно ARIMA c регрессией осталась лучшей. 
+
+```r
+accuracy(fct_w_av,df_all) %>% 
+  select(MAPE,.model) %>% 
+  ggplot(aes(y=reorder(.model,-MAPE),x=MAPE,label=round(MAPE,0)))+
+  geom_col(width = 0.6,alpha=0.9,color='#0057b7',fill='#ffd700')+
+  geom_text(size=5,hjust = -0.5,color='#0057b7')+
+  theme_cowplot()+
+  scale_x_continuous(expand = expansion(mult = c(0,0.2)))+
+  labs(y="Модели")
+```
+
+![](TS1_project_2022-03_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
+```r
+# ARIMA
+plt_arima110_r = fct_w_av %>% 
+  filter(.model == "arima110_r") %>% 
   autoplot(lty=2,fill='#dbaf00')+
   autolayer(df_all_begin_cut)+
   theme_cowplot()+
   background_grid(size.major = 0.2)+
   scale_x_yearmonth(date_breaks = "4 month", date_labels = "%y'%m")+
   theme(axis.text.x = element_text(color='grey',size=10,angle=90))+
-  labs(title = "ARIMA with regression on seasonal difference")
+  labs(title = "ARIMA ~ unemployment (110)(011)  ")
 
-plot_grid(plt_arima_r,plt_arima_s,nrow = 2)
+plot_grid(plt_arima110_r,plt_prophet,nrow=2)
 ```
 
-![](TS1_project_2022-03_files/figure-html/compare best-1.png)<!-- -->
-  
+![](TS1_project_2022-03_files/figure-html/plot final result-1.png)<!-- -->
+
 Еще можно предсказать в будущее.  
 
 
-```r
-fit_full <- model(df_all,
-  ARIMA(N_nights ~ 0 + pdq(1,1,0))
-)
 
+```r
+# 
+fit_full <- model(df_all,
+  ARIMA(N_nights ~ unemp + pdq(1,1,0) + PDQ (0,1,1)))
+```
+
+
+```r
+# НУЖЕН ПРОГНОЗ БЕЗРАБОТИЦЫ
 fct_future = forecast(fit_full,h=24)
 ```
+
+
 
 ```r
 fct_future %>% 

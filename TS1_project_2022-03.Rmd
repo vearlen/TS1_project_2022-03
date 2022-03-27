@@ -25,11 +25,11 @@ library(fable.prophet)
 library(urca) # tests
 ```
 
-## 1 Импорт  
-*Возьмите любой ряд с ежемесячными наблюдениями.*  
+## 1 Импорт
+
+*Возьмите любой ряд с ежемесячными наблюдениями.*
 
 Ряд, количество ночей проведенных туристами, взяли с сайта [eurostat](https://appsso.eurostat.ec.europa.eu/nui/show.do?dataset=tour_occ_nim&lang=en), сам ряд можно скачать с [github](https://github.com/vearlen/TS1_project_2022-03/blob/main/Data/tour_occ_nim_1_Data.csv). Второй ряд, процент безработицы, тоже с сайта [eurostat](https://appsso.eurostat.ec.europa.eu/nui/show.do?dataset=une_rt_m&lang=en) и тоже можно взять копию [csv](https://github.com/vearlen/TS1_project_2022-03/blob/main/Data/ei_lmhr_m_1_Data.csv).
-
 
 ```{r input data}
 # nights spend in hotels --------------------------------------------------
@@ -75,9 +75,10 @@ df3_ts = df3 %>%
   
 ```
 
-## 2 Визуализация    
-*Визуализируйте сам ряд, ряд обычных и сезонных разностей, компоненты ряда, обычные и частные автокорреляционные функции.*  
-Вот сам ряд.  
+## 2 Визуализация
+
+*Визуализируйте сам ряд, ряд обычных и сезонных разностей, компоненты ряда, обычные и частные автокорреляционные функции.*\
+Вот сам ряд.
 
 ```{r nights plot}
 ggplot(df2_ts,aes(x=Date,y=Value))+
@@ -95,7 +96,7 @@ ggplot(df2_ts,aes(x=Date,y=Value))+
     axis.title.y = element_text(size=13))
 ```
 
-Можно посмотреть на два ряда вместе, потом нам это пригодится.  
+Можно посмотреть на два ряда вместе, потом нам это пригодится.
 
 ```{r autoplot unempl}
 ggplot(df3_ts,aes(x=Date,y=Value*10))+
@@ -115,24 +116,24 @@ ggplot(df3_ts,aes(x=Date,y=Value*10))+
 
 ```
 
-**Тут нужен комментарий.**    
-Кажется у нас нет особой сезонности на pacf графике, ну по крайней мере не больше второго лага точно.  
+**Тут нужен комментарий.**\
+Кажется у нас нет особой сезонности на pacf графике, ну по крайней мере не больше второго лага точно.
 
 ```{r acf pacf nights}
 gg_tsdisplay(df2_ts,plot_type = 'partial')+
   labs(title = "Ночи проведенные в гостиницах")
 ```
-  
-STL разложение.  
-  
+
+STL разложение.
+
 ```{r STL}
 stl_model = model(df2_ts,
                   decomp = STL(Value ~ trend(window = 30) +
                                  season(window = 50)))
 components(stl_model) %>% autoplot()
 ```
-  
-Посмотрим на разности.  
+
+Посмотрим на разности.
 
 ```{r diff}
 nights = df2_ts %>% 
@@ -141,7 +142,7 @@ nights = mutate(nights, diff = difference(N_nights, order_by = Date))
 gg_tsdisplay(nights, y = diff, plot_type = 'partial')+
   labs(title="Разность ряда")
 ```
-  
+
 В том числе сезонные. Очевидно что ковидный период подпортил статистику. Разница не выглядит стационарной.
 
 ```{r season diff}
@@ -150,8 +151,8 @@ gg_tsdisplay(nights, y = diff_seas, plot_type = 'partial')+
   labs(title="Сезонная разность (12 месяцев)")
 
 ```
-  
-Если отрезать ковидный период, то разница уже больше похожа на стационарный ряд. ARIMA (p,1,q)?  
+
+Если отрезать ковидный период, то разница уже больше похожа на стационарный ряд. ARIMA (p,1,q)?
 
 ```{r season diff w_out covid}
 nights = mutate(nights, diff_seas = difference(N_nights, lag = 12, order_by = Date))
@@ -159,12 +160,12 @@ nights_cut = filter(nights, Date < ymd("2020-03-01"))
 gg_tsdisplay(nights_cut, y = diff_seas, plot_type = 'partial')+
   labs(title="Сезонная разность (12 мес) без последних двух лет")
 ```
-  
-## 3 Стационарность  
-  
-*Является ли ряд стационарным?*  
-  
-### ADF с константой    
+
+## 3 Стационарность
+
+*Является ли ряд стационарным?*
+
+### ADF с константой
 
 ```{r ADF test}
 #3. ADF с константой
@@ -176,11 +177,10 @@ summary(ur.df(nights$N_nights, type = 'drift',
                                     # первое наблюдаемое значение -3.0 как в лекциях
                                     # сравниваем с первой строкой tau2
 ```
-  
-Наблюдаемое значение -5.79, критическое -2.88 (на 5% уровне значимости).  Наблюдаемое меньше, т.е. Н0 отвергается - ряд стационарный.  
 
+Наблюдаемое значение -5.79, критическое -2.88 (на 5% уровне значимости). Наблюдаемое меньше, т.е. Н0 отвергается - ряд стационарный.
 
- ### KPSS c константой  
+\#\#\# KPSS c константой
 
 ```{r KPSS test}
 # KPSS с константой
@@ -189,65 +189,79 @@ summary(ur.df(nights$N_nights, type = 'drift',
 summary(ur.kpss(nights$N_nights, type = 'mu'))  # H0 не отвергается на 5% уровне значимости
                                                 # наблюдаемое меньше чем критическое
 ```
-  
-Получается что наблюдаемое значение статистики меньше чем критическое (на 5% уровне), т.е. Н0 не отвергается, значит ряд стационарный.  
-    
-Подсчитаем также KPSS тест с трендом. **не уверен что это нужно** 
-  
+
+Получается что наблюдаемое значение статистики меньше чем критическое (на 5% уровне), т.е. Н0 не отвергается, значит ряд стационарный.
+
+Подсчитаем также KPSS тест с трендом. **не уверен что это нужно**
+
 ```{r KPSS trend}
 # 2. KPSS с трендом
 # H0: ts = trend + stat (стационарный ряд)
 # Ha: ts = trend + stat + rw (нестационарный ряд)
-summary( ur.kpss(nights$N_nights, type = 'tau')) # H0 отвергается на 5% уровне значимости
+summary(ur.kpss(nights$N_nights, type = 'tau')) # H0 отвергается на 5% уровне значимости
                                                  # наблюдаемое больше чем критическое
 ```
-  
-Выходит что наблюдаемое значение больше чем критическое (на 5% уровне значимости), значит H0 отвергается. Вероятно это можно объяснить тем, что у нас есть тренд.  
-  
-  
-## 4 Преобразование  
-*Если разумно применить к исходному ряду какое-либо преобразование, то примените его, мотивировав свой выбор.*  
 
-## 5 Деление  
-*Поделите ряд на тестовую и обучающую выборку.*  
+Выходит что наблюдаемое значение больше чем критическое (на 5% уровне значимости), значит H0 отвергается. Вероятно это можно объяснить тем, что у нас есть тренд.
+
+## 4 Преобразование
+
+*Если разумно применить к исходному ряду какое-либо преобразование, то примените его, мотивировав свой выбор.*
+
+## 5 Деление
+
+*Поделите ряд на тестовую и обучающую выборку.*
 
 ```{r test-train}
 df_all = left_join(nights,df3_ts)
 df_all = rename(df_all,'unempl'='Value')
 df_all = mutate(df_all, diff_unempl = difference(unempl,1),
                 sdiff_unempl = difference(unempl,12))
-df_train <- filter(df_all, Date < ymd ('2021-01-01'))
-df_test <- filter(df_all, Date >= ymd ('2021-01-01'))
+
+# считаем макс мин для масштабирования
+min_nights = min(df_all$diff_seas,na.rm = TRUE)
+max_nights = max(df_all$diff_seas,na.rm = TRUE)
+min_unmp = min(df_all$sdiff_unempl,na.rm = TRUE)
+max_unmp = max(df_all$sdiff_unempl,na.rm = TRUE)
+
+# масштабируем
+df_all_sc = df_all %>% 
+  mutate (nights_sdif_sc = (diff_seas-min_nights)/(max_nights-min_nights),
+          unempl_sdif_sc = (sdiff_unempl-min_unmp)/(max_unmp-min_unmp))
+
+# делим на тестовую и обучающую
+df_train <- filter(df_all_sc, Date < ymd ('2021-01-01'))
+df_test <- filter(df_all_sc, Date >= ymd ('2021-01-01'))
 ```
-  
-## 6 Модели  
-*Оцените ряд моделей/алгоритмов на тестовой выборке.*  
+
+## 6 Модели
+
+*Оцените ряд моделей/алгоритмов на тестовой выборке.*
 
 ```{r fit models}
 fit_models <- df_train %>% 
   model(
     snaive = SNAIVE(N_nights),
     arima = ARIMA(N_nights),
-    arima_r = ARIMA(N_nights ~ unempl),
-    arima110_r = ARIMA(N_nights ~ unempl+ pdq(1,1,0)),
     ets = ETS(N_nights),
     prophet = prophet(N_nights ~ season ('year', 10, type='additive')),
-    sarima111_1xx_r = ARIMA(N_nights ~ unempl + pdq(1, 1, 1) +PDQ(1, 0:1, 0:2)),
     theta_decomp = decomposition_model(
                 STL(N_nights ~ season(window=Inf)),
                 THETA(season_adjust),
                 SNAIVE(season_year))
   )
 ```
-  
-Можно посмотреть отчет.   
+
+Можно посмотреть отчет.
+
 ```{r report arima}
-report(fit_models$arima[[1]])
+report(fit_models$arima110_r[[1]])
 ```
 
 ```{r forecast}
 fct = forecast(fit_models,new_data=df_test)
 ```
+
 ```{r accuracy}
 fct %>% 
   accuracy(df_all) %>% 
@@ -258,10 +272,20 @@ fct %>%
   datatable(rownames = FALSE,options=list(pageLength=9), autoHideNavigation = TRUE)
 ```
 
+```{r residuals from arima110_r}
+# fct_temp = fct %>% 
+#   filter(.model == "arima110_r") 
+# 
+# fct_proc = bind_cols(df_test,"arima110_r_fit" =fct_temp$.mean) %>% 
+#   mutate(resid = N_nights-arima110_r_fit)
+
+# View(fct_proc)
+```
+
 ```{r}
 accuracy(fct,df_all) %>% 
-  select(MASE,.model) %>% 
-  ggplot(aes(y=reorder(.model,-MASE),x=MASE,label=round(MASE,2)))+
+  select(MAPE,.model) %>% 
+  ggplot(aes(y=reorder(.model,-MAPE),x=MAPE,label=round(MAPE,0)))+
   geom_col(width = 0.6,alpha=0.9,color='#0057b7',fill='#ffd700')+
   geom_text(size=5,hjust = -0.5,color='#0057b7')+
   theme_cowplot()+
@@ -269,103 +293,47 @@ accuracy(fct,df_all) %>%
   labs(y="Модели")
 ```
 
-**можно запустить кросс валидацию**
-```{r}
-df_slide = slide_tsibble(df_all,
-                         .size=24,.step=3)
-models_slide = model(df_slide,
-    snaive = SNAIVE(N_nights),
-    arima = ARIMA(N_nights),
-    arima110_r = ARIMA(N_nights ~ unempl+ pdq(1,1,0)),
-    sarima111_1xx_r = ARIMA(N_nights ~ unempl + pdq(1, 1, 1) +PDQ(1, 0:1, 0:2)),
-    theta_decomp = decomposition_model(
-                STL(N_nights ~ season(window=Inf)),
-                THETA(season_adjust),
-                SNAIVE(season_year))
-  )
-```
+## 7 Победитель
 
-```{r}
-# нужно спрогнозировать безработицу чтобы сделать прогноз
-# fct_slide = forecast(models_slide,h=12)
-```
+*Выберите наилучшую модель*
 
-  
-## 7 Победитель  
-*Выберите наилучшую модель*  
-
-Ради лучшей визаулизации я обрезал начало ряда, но только для графика!  
+Ради лучшей визаулизации я обрезал начало ряда, но только для графика!
 
 ```{r display best models, fig.height=8, fig.width=10}
 df_all_begin_cut = filter(df_all, Date > ymd("2018-01-01"))
-# arima_r
-plt_arima_r = fct %>% 
-  filter(.model == "arima110_r") %>% 
+
+# prophet
+plt_prophet = fct %>% 
+  filter(.model == "prophet") %>% 
   autoplot(lty=2,fill='#0057b7')+
   autolayer(df_all_begin_cut)+
   theme_cowplot()+
   background_grid(size.major = 0.2)+
   scale_x_yearmonth(date_breaks = "4 month", date_labels = "%y'%m")+
   theme(axis.text.x = element_text(color='grey',size=10,angle=90))+
-  labs(title = "ARIMA with regression")
+  labs(title = "PROPHET")
 
-# SARIMA
-plt_sarima = fct %>% 
-  filter(.model == "sarima111_1xx_r") %>% 
+# THETA
+plt_theta = fct %>% 
+  filter(.model == "theta_decomp") %>% 
   autoplot(lty=2,fill='#dbaf00')+
   autolayer(df_all_begin_cut)+
   theme_cowplot()+
   background_grid(size.major = 0.2)+
   scale_x_yearmonth(date_breaks = "4 month", date_labels = "%y'%m")+
   theme(axis.text.x = element_text(color='grey',size=10,angle=90))+
-  labs(title = "SARIMA with regression")
+  labs(title = "THETA")
 
-# ets
-plt_ets = fct %>% 
-  filter(.model == "ets") %>% 
-  autoplot(lty=2,fill='grey20')+
-  autolayer(df_all_begin_cut)+
-  theme_cowplot()+
-  background_grid(size.major = 0.2)+
-  scale_x_yearmonth(date_breaks = "4 month", date_labels = "%y'%m")+
-  theme(axis.text.x = element_text(color='grey',size=10,angle=90))+
-  labs(title = "ETS")
-
-plot_grid(plt_arima_r,plt_sarima,plt_ets,nrow=3)
-
-```
-  
-### Средняя модель  
-  
-```{r average models}
-av_model <- fit_models %>% 
-  mutate(mean = (arima110_r + sarima111_1xx_r)/2,
-         three = (arima110_r + sarima111_1xx_r+prophet)/3)
+plot_grid(plt_prophet,plt_theta,nrow=2)
 
 ```
 
-```{r forecast average}
-fct_w_av = forecast(av_model,new_data = df_test)
-```
-
-```{r compare aver forecast}
-fct_w_av %>% 
-  accuracy(df_all) %>% 
-  arrange(MAPE) %>% 
-  select(-.type) %>% 
-  mutate_if(is.numeric,round,2) %>% 
-  datatable(rownames = FALSE,options=list(pageLength=9), autoHideNavigation = TRUE)
-```
-Все равно ARIMA c регрессией осталась лучшей. 
-
-## 8 Удивить!  
-
-Можно взять как раз разницу безработицы и впихнуть в лучшую модель, но этим никого не удивить.    
+## 8 Удивить!
 
 ```{r autoplot unempl diff}
 ggplot(df_all,aes(x=Date,y=sdiff_unempl*100))+
   geom_line(color='grey30',lty=5,size=0.4)+
-  geom_line(data=df_all,aes(x=Date,y=N_nights/1e+6),color='#0066cc',size=0.4)+
+  geom_line(data=df_all,aes(x=Date,y=N_nights/1e+06),color='#0066cc',size=0.4)+
   theme_cowplot()+
   background_grid(size.major = 0.2)+
   scale_x_yearmonth(date_breaks = "6 month", date_labels = "%y'%m")+
@@ -379,60 +347,105 @@ ggplot(df_all,aes(x=Date,y=sdiff_unempl*100))+
     axis.title.y = element_text(size=13))
 
 ```
-```{r fit season models}
 
-fit_models_seasons <- df_train %>% 
+```{r models season}
+fit_models_sns <- df_train %>% 
   model(
-    arima_r = ARIMA(N_nights ~ diff_unempl),
-    arima110_r = ARIMA(N_nights ~ diff_unempl+ pdq(1,1,0)),
+    arima_r = ARIMA(N_nights ~ unempl),
+    arima_r_s = ARIMA(N_nights ~ sdiff_unempl),
+    arima110_r = ARIMA(N_nights ~ unempl+ pdq(1,1,0)),
     arima110_r_s = ARIMA(N_nights ~ sdiff_unempl+ pdq(1,1,0)),
-    sarima111_1xx_r = ARIMA(N_nights ~ diff_unempl + pdq(1, 1, 1) +PDQ(1, 0:1, 0:2)),
-    sarima111_1xx_r_s = ARIMA(N_nights ~ sdiff_unempl + pdq(1, 1, 1) +PDQ(1, 0:1, 0:2)),
-      )
-```
-```{r forecast seas}
-fct_season = forecast(fit_models_seasons,new_data=df_test)
+    sarima111_1xx_r = ARIMA(N_nights ~ unempl + pdq(1, 1, 1) + PDQ(1, 0:1, 0:2)),
+    sarima111_1xx_r_s = ARIMA(N_nights ~ sdiff_unempl + pdq(1, 1, 1) + PDQ(1, 0:1, 0:2))
+  )
 ```
 
-```{r accuracy season}
-fct_season %>% 
+```{r forecast season}
+fct_sns = forecast(fit_models_sns,df_test)
+```
+
+```{r}
+fct_sns %>% 
+  accuracy(df_all) %>% 
+  arrange(MAPE) %>% 
+  # select(-MASE,-RMSSE) %>% 
+  select(-.type) %>% 
+  mutate_if(is.numeric,round,3) %>% 
+  datatable(rownames = FALSE,options=list(pageLength=9), autoHideNavigation = TRUE)
+```
+
+```{r}
+report(fit_models_sns$arima_r_s[[1]]) # авто с десезон безработицей
+```
+
+```{r}
+report(fit_models_sns$arima110_r[[1]]) # полу-авто
+```
+
+### Средняя модель
+
+```{r average models}
+av_model <- fit_models_sns %>% 
+  mutate(mean = (arima110_r + arima_r_s)/2)
+
+```
+
+```{r forecast average}
+fct_w_av = forecast(av_model,new_data = df_test)
+```
+
+```{r compare aver forecast}
+fct_w_av %>% 
   accuracy(df_all) %>% 
   arrange(MAPE) %>% 
   select(-.type) %>% 
   mutate_if(is.numeric,round,2) %>% 
-  datatable(rownames = FALSE,options=list(pageLength=9), autoHideNavigation = TRUE)
+  datatable(rownames = FALSE,options=list(pageLength=10), autoHideNavigation = TRUE)
 ```
-  
-Но c cезонной безработицей модель не получилась лучше.  
 
-```{r compare best, fig.width=10, fig.height=7}
+Все равно ARIMA c регрессией осталась лучшей.
 
+```{r}
+accuracy(fct_w_av,df_all) %>% 
+  select(MAPE,.model) %>% 
+  ggplot(aes(y=reorder(.model,-MAPE),x=MAPE,label=round(MAPE,0)))+
+  geom_col(width = 0.6,alpha=0.9,color='#0057b7',fill='#ffd700')+
+  geom_text(size=5,hjust = -0.5,color='#0057b7')+
+  theme_cowplot()+
+  scale_x_continuous(expand = expansion(mult = c(0,0.2)))+
+  labs(y="Модели")
+```
 
-# ets
-plt_arima_s = fct_season %>% 
-  filter(.model == "arima110_r_s") %>% 
+```{r plot final result, fig.height=8, fig.width=10}
+
+# ARIMA
+plt_arima110_r = fct_w_av %>% 
+  filter(.model == "arima110_r") %>% 
   autoplot(lty=2,fill='#dbaf00')+
   autolayer(df_all_begin_cut)+
   theme_cowplot()+
   background_grid(size.major = 0.2)+
   scale_x_yearmonth(date_breaks = "4 month", date_labels = "%y'%m")+
   theme(axis.text.x = element_text(color='grey',size=10,angle=90))+
-  labs(title = "ARIMA with regression on seasonal difference")
+  labs(title = "ARIMA ~ unemployment (110)(011)  ")
 
-plot_grid(plt_arima_r,plt_arima_s,nrow = 2)
+plot_grid(plt_arima110_r,plt_prophet,nrow=2)
 
 ```
-  
-Еще можно предсказать в будущее.  
+
+Еще можно предсказать в будущее.
 
 ```{r predict future}
-
+# 
 fit_full <- model(df_all,
-  ARIMA(N_nights ~ 0 + pdq(1,1,0))
-)
+  ARIMA(N_nights ~ unemp + pdq(1,1,0) + PDQ (0,1,1)))
+```
 
+```{r}
+# НУЖЕН ПРОГНОЗ БЕЗРАБОТИЦЫ
 fct_future = forecast(fit_full,h=24)
 ```
+
 ```{r plot future, fig.width=10, fig.height=6}
 fct_future %>% 
   autoplot(color="#0066cc",alpha=0.7)+
@@ -445,6 +458,5 @@ fct_future %>%
        subtitle = "ARIMA")
 
 ```
-  
-## 9 Случай из жизни  
 
+## 9 Случай из жизни
