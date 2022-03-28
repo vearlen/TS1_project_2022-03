@@ -316,8 +316,8 @@ fct %>%
 ```
 
 ```{=html}
-<div id="htmlwidget-595b2b0b0d17f3695f5b" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-595b2b0b0d17f3695f5b">{"x":{"filter":"none","autoHideNavigation":true,"data":[["prophet","theta_decomp","arima","ets","snaive"],[9420352.83,744794.49,27017217.24,-15793338.43,8331459.67],[22531314.57,16013294.9,29832721.8,22567128.93,28309733.58],[17086864.29,13165861.86,27017217.24,18731603.58,25260921.33],[6.36,-37.67,171.13,-170.02,-157.86],[84.98,85.08,171.13,180.11,259.19],[1.59,1.23,2.52,1.75,2.35],[0.89,0.63,1.17,0.89,1.11],[0.8,0.8,0.69,0.77,0.74]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>.model<\/th>\n      <th>ME<\/th>\n      <th>RMSE<\/th>\n      <th>MAE<\/th>\n      <th>MPE<\/th>\n      <th>MAPE<\/th>\n      <th>MASE<\/th>\n      <th>RMSSE<\/th>\n      <th>ACF1<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":9,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8]}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[9,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-b7affad2f6bc1008a5ce" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-b7affad2f6bc1008a5ce">{"x":{"filter":"none","autoHideNavigation":true,"data":[["prophet","theta_decomp","arima","ets","snaive"],[9509424.67,744794.49,27017217.24,-15793338.43,8331459.67],[22618844.13,16013294.9,29832721.8,22567128.93,28309733.58],[17146121.06,13165861.86,27017217.24,18731603.58,25260921.33],[6.85,-37.67,171.13,-170.02,-157.86],[84.44,85.08,171.13,180.11,259.19],[1.6,1.23,2.52,1.75,2.35],[0.89,0.63,1.17,0.89,1.11],[0.81,0.8,0.69,0.77,0.74]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>.model<\/th>\n      <th>ME<\/th>\n      <th>RMSE<\/th>\n      <th>MAE<\/th>\n      <th>MPE<\/th>\n      <th>MAPE<\/th>\n      <th>MASE<\/th>\n      <th>RMSSE<\/th>\n      <th>ACF1<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":9,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8]}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[9,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
 ```
 
 Смотрим на сравнение наших моделей по метрике MAPE. Лучшей моделью по MAPE оказалась модель, построенная по алгоритму prophet.  
@@ -459,8 +459,8 @@ fct_sns %>%
 ```
 
 ```{=html}
-<div id="htmlwidget-522de52de1215ce9ea83" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-522de52de1215ce9ea83">{"x":{"filter":"none","autoHideNavigation":true,"data":[["arima110_r","arima_r_s","arima110_r_s","sarima111_1xx_r","sarima111_1xx_r_s","arima_r"],[8816939.288,8615610.869,8615610.869,2099916.026,14477246.754,17681963.075],[16366203.001,15853896.068,15853896.068,14644554.621,19257062.138,23822474.311],[11872146.16,11790690.165,11790690.165,12259733.802,15041963.803,18930739.179],[21.624,32.14,32.14,-33.814,67.952,65.59],[49.049,55.432,55.432,74.484,82.13,97.146],[1.107,1.099,1.099,1.143,1.402,1.765],[0.644,0.624,0.624,0.576,0.758,0.937],[0.79,0.772,0.772,0.794,0.75,0.771]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>.model<\/th>\n      <th>ME<\/th>\n      <th>RMSE<\/th>\n      <th>MAE<\/th>\n      <th>MPE<\/th>\n      <th>MAPE<\/th>\n      <th>MASE<\/th>\n      <th>RMSSE<\/th>\n      <th>ACF1<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":9,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8]}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[9,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-f90bd4a22e1cf976fd74" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-f90bd4a22e1cf976fd74">{"x":{"filter":"none","autoHideNavigation":true,"data":[["arima110_r","arima_r_s","arima110_r_s","sarima111_1xx_r","sarima111_1xx_r_s","arima_r"],[8816939.288,8615610.869,8615610.869,2099916.026,14477246.754,17681963.075],[16366203.001,15853896.068,15853896.068,14644554.621,19257062.138,23822474.311],[11872146.16,11790690.165,11790690.165,12259733.802,15041963.803,18930739.179],[21.624,32.14,32.14,-33.814,67.952,65.59],[49.049,55.432,55.432,74.484,82.13,97.146],[1.107,1.099,1.099,1.143,1.402,1.765],[0.644,0.624,0.624,0.576,0.758,0.937],[0.79,0.772,0.772,0.794,0.75,0.771]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>.model<\/th>\n      <th>ME<\/th>\n      <th>RMSE<\/th>\n      <th>MAE<\/th>\n      <th>MPE<\/th>\n      <th>MAPE<\/th>\n      <th>MASE<\/th>\n      <th>RMSSE<\/th>\n      <th>ACF1<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":9,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8]}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[9,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
 ```
   
 Лучшая модель по MAPE - модель с обычной беработицей arima (1,1,0)(0,1,1).
@@ -509,8 +509,8 @@ fct_w_av %>%
 ```
 
 ```{=html}
-<div id="htmlwidget-bc6533f59658cfdb4da2" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-bc6533f59658cfdb4da2">{"x":{"filter":"none","autoHideNavigation":true,"data":[["arima110_r","mean","arima_r_s","arima110_r_s","sarima111_1xx_r","sarima111_1xx_r_s","arima_r"],[8816939.29,8716275.08,8615610.87,8615610.87,2099916.03,14477246.75,17681963.07],[16366203,16090401.27,15853896.07,15853896.07,14644554.62,19257062.14,23822474.31],[11872146.16,11831418.16,11790690.16,11790690.16,12259733.8,15041963.8,18930739.18],[21.62,26.88,32.14,32.14,-33.81,67.95,65.59],[49.05,52.24,55.43,55.43,74.48,82.13,97.15],[1.11,1.1,1.1,1.1,1.14,1.4,1.76],[0.64,0.63,0.62,0.62,0.58,0.76,0.94],[0.79,0.78,0.77,0.77,0.79,0.75,0.77]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>.model<\/th>\n      <th>ME<\/th>\n      <th>RMSE<\/th>\n      <th>MAE<\/th>\n      <th>MPE<\/th>\n      <th>MAPE<\/th>\n      <th>MASE<\/th>\n      <th>RMSSE<\/th>\n      <th>ACF1<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8]}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-bddefb907faea1090d75" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-bddefb907faea1090d75">{"x":{"filter":"none","autoHideNavigation":true,"data":[["arima110_r","mean","arima_r_s","arima110_r_s","sarima111_1xx_r","sarima111_1xx_r_s","arima_r"],[8816939.29,8716275.08,8615610.87,8615610.87,2099916.03,14477246.75,17681963.07],[16366203,16090401.27,15853896.07,15853896.07,14644554.62,19257062.14,23822474.31],[11872146.16,11831418.16,11790690.16,11790690.16,12259733.8,15041963.8,18930739.18],[21.62,26.88,32.14,32.14,-33.81,67.95,65.59],[49.05,52.24,55.43,55.43,74.48,82.13,97.15],[1.11,1.1,1.1,1.1,1.14,1.4,1.76],[0.64,0.63,0.62,0.62,0.58,0.76,0.94],[0.79,0.78,0.77,0.77,0.79,0.75,0.77]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>.model<\/th>\n      <th>ME<\/th>\n      <th>RMSE<\/th>\n      <th>MAE<\/th>\n      <th>MPE<\/th>\n      <th>MAPE<\/th>\n      <th>MASE<\/th>\n      <th>RMSSE<\/th>\n      <th>ACF1<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8]}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 ```
 
 Усредненная из лучших модель не переиграла лучшую. Все равно ARIMA c регрессией осталась лучшей.  
@@ -655,8 +655,8 @@ fct_unempl %>%
 ```
 
 ```{=html}
-<div id="htmlwidget-63a6a7c48a7a88699ef9" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-63a6a7c48a7a88699ef9">{"x":{"filter":"none","autoHideNavigation":true,"data":[["theta_decomp","ets","prophet","arima","snaive"],[-0.26,-0.36,-0.73,-0.67,-0.21],[0.38,0.58,0.89,0.94,0.89],[0.27,0.42,0.73,0.76,0.86],[-4,-5.62,-10.92,-10.25,-3.87],[4.18,6.32,10.92,11.45,12.35],[0.35,0.53,0.93,0.98,1.1],[0.47,0.71,1.09,1.15,1.1],[0.71,0.73,0.74,0.81,0.82]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>.model<\/th>\n      <th>ME<\/th>\n      <th>RMSE<\/th>\n      <th>MAE<\/th>\n      <th>MPE<\/th>\n      <th>MAPE<\/th>\n      <th>MASE<\/th>\n      <th>RMSSE<\/th>\n      <th>ACF1<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":9,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8]}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[9,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-78a5592dd5bd0037b75f" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-78a5592dd5bd0037b75f">{"x":{"filter":"none","autoHideNavigation":true,"data":[["theta_decomp","ets","prophet","arima","snaive"],[-0.26,-0.36,-0.73,-0.67,-0.21],[0.38,0.58,0.89,0.94,0.89],[0.27,0.42,0.73,0.76,0.86],[-4,-5.62,-10.89,-10.25,-3.87],[4.18,6.32,10.89,11.45,12.35],[0.35,0.53,0.93,0.98,1.1],[0.47,0.71,1.09,1.15,1.1],[0.71,0.73,0.75,0.81,0.82]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>.model<\/th>\n      <th>ME<\/th>\n      <th>RMSE<\/th>\n      <th>MAE<\/th>\n      <th>MPE<\/th>\n      <th>MAPE<\/th>\n      <th>MASE<\/th>\n      <th>RMSSE<\/th>\n      <th>ACF1<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":9,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8]}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[9,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
 ```
   
 Лучшая модель - THETA. Переоценим модель на всей выборке и сделаем предсказание на два года.    
@@ -763,8 +763,8 @@ work_exmp_ts %>%
 ```
 
 ```{=html}
-<div id="htmlwidget-aaf4515770b16a6776ba" style="width:672px;height:480px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-aaf4515770b16a6776ba">{"x":{"visdat":{"366bc73d00":["function () ","plotlyVisDat"]},"cur_data":"366bc73d00","attrs":{"366bc73d00":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":["2018-01-01","2018-02-01","2018-03-01","2018-04-01","2018-05-01","2018-06-01","2018-07-01","2018-08-01","2018-09-01","2018-10-01","2018-11-01","2018-12-01","2019-01-01","2019-02-01","2019-03-01","2019-04-01","2019-05-01","2019-06-01","2019-07-01","2019-08-01","2019-09-01","2019-10-01","2019-11-01","2019-12-01","2020-01-01","2020-02-01","2020-03-01","2020-04-01","2020-05-01","2020-06-01","2020-07-01","2020-08-01","2020-09-01","2020-10-01","2020-11-01","2020-12-01"],"y":[317.6140373,-20.8701473,141.1897344,113.7179903,176.5226509,167.1374215,244.947092,182.7669453,125.9624283,262.6049319,159.1617596,156.2527461,117.9722788,105.5678582,169.5413375,226.3112988,247.8073373,175.6230591,131.3078268,89.89710541,228.0854765,101.3908422,170.5083848,186.7725512,107.936459,110.9045634,-81.84538729,-118.3941885,-49.38289652,15.89818754,-22.63053764,-9.54513605,7.86906651,7.810650356,44.33946232,132.0008842],"type":"scatter","mode":"lines","name":"Y_B","line":{"dash":null},"inherit":true},"366bc73d00.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":["2018-01-01","2018-02-01","2018-03-01","2018-04-01","2018-05-01","2018-06-01","2018-07-01","2018-08-01","2018-09-01","2018-10-01","2018-11-01","2018-12-01","2019-01-01","2019-02-01","2019-03-01","2019-04-01","2019-05-01","2019-06-01","2019-07-01","2019-08-01","2019-09-01","2019-10-01","2019-11-01","2019-12-01","2020-01-01","2020-02-01","2020-03-01","2020-04-01","2020-05-01","2020-06-01","2020-07-01","2020-08-01","2020-09-01","2020-10-01","2020-11-01","2020-12-01"],"y":[315.8558438,-9.658095278,117.4487542,117.999855,160.6735837,155.1423775,217.7663513,188.1440285,164.1382236,247.7688856,173.6162444,164.3855236,130.5416192,141.8066382,176.3421326,189.1351113,231.7287356,185.2965453,133.1723221,105.7556634,198.0345412,98.00670423,145.8823254,226.0034574,147.046708,139.6665207,-53.78457857,-116.6708421,-50.38777792,18.03910877,-24.38565329,-22.14744982,-26.70627925,6.051587315,28.75946488,102.2858941],"type":"scatter","mode":"lines","name":"Fit_B","line":{"dash":null},"inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"xaxis":{"domain":[0,1],"automargin":true,"title":"","showgrid":false,"rangeslider":{"type":"date"}},"yaxis":{"domain":[0,1],"automargin":true,"title":"Y","showgrid":false},"title":".","hovermode":"x unified","showlegend":true},"source":"A","config":{"showSendToCloud":false},"data":[{"x":["2018-01-01","2018-02-01","2018-03-01","2018-04-01","2018-05-01","2018-06-01","2018-07-01","2018-08-01","2018-09-01","2018-10-01","2018-11-01","2018-12-01","2019-01-01","2019-02-01","2019-03-01","2019-04-01","2019-05-01","2019-06-01","2019-07-01","2019-08-01","2019-09-01","2019-10-01","2019-11-01","2019-12-01","2020-01-01","2020-02-01","2020-03-01","2020-04-01","2020-05-01","2020-06-01","2020-07-01","2020-08-01","2020-09-01","2020-10-01","2020-11-01","2020-12-01"],"y":[317.6140373,-20.8701473,141.1897344,113.7179903,176.5226509,167.1374215,244.947092,182.7669453,125.9624283,262.6049319,159.1617596,156.2527461,117.9722788,105.5678582,169.5413375,226.3112988,247.8073373,175.6230591,131.3078268,89.89710541,228.0854765,101.3908422,170.5083848,186.7725512,107.936459,110.9045634,-81.84538729,-118.3941885,-49.38289652,15.89818754,-22.63053764,-9.54513605,7.86906651,7.810650356,44.33946232,132.0008842],"type":"scatter","mode":"lines","name":"Y_B","line":{"color":"rgba(31,119,180,1)","dash":[]},"marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2018-01-01","2018-02-01","2018-03-01","2018-04-01","2018-05-01","2018-06-01","2018-07-01","2018-08-01","2018-09-01","2018-10-01","2018-11-01","2018-12-01","2019-01-01","2019-02-01","2019-03-01","2019-04-01","2019-05-01","2019-06-01","2019-07-01","2019-08-01","2019-09-01","2019-10-01","2019-11-01","2019-12-01","2020-01-01","2020-02-01","2020-03-01","2020-04-01","2020-05-01","2020-06-01","2020-07-01","2020-08-01","2020-09-01","2020-10-01","2020-11-01","2020-12-01"],"y":[315.8558438,-9.658095278,117.4487542,117.999855,160.6735837,155.1423775,217.7663513,188.1440285,164.1382236,247.7688856,173.6162444,164.3855236,130.5416192,141.8066382,176.3421326,189.1351113,231.7287356,185.2965453,133.1723221,105.7556634,198.0345412,98.00670423,145.8823254,226.0034574,147.046708,139.6665207,-53.78457857,-116.6708421,-50.38777792,18.03910877,-24.38565329,-22.14744982,-26.70627925,6.051587315,28.75946488,102.2858941],"type":"scatter","mode":"lines","name":"Fit_B","line":{"color":"rgba(255,127,14,1)","dash":[]},"marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-7ab82ec4112d713e7085" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-7ab82ec4112d713e7085">{"x":{"visdat":{"44084e2054":["function () ","plotlyVisDat"]},"cur_data":"44084e2054","attrs":{"44084e2054":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":["2018-01-01","2018-02-01","2018-03-01","2018-04-01","2018-05-01","2018-06-01","2018-07-01","2018-08-01","2018-09-01","2018-10-01","2018-11-01","2018-12-01","2019-01-01","2019-02-01","2019-03-01","2019-04-01","2019-05-01","2019-06-01","2019-07-01","2019-08-01","2019-09-01","2019-10-01","2019-11-01","2019-12-01","2020-01-01","2020-02-01","2020-03-01","2020-04-01","2020-05-01","2020-06-01","2020-07-01","2020-08-01","2020-09-01","2020-10-01","2020-11-01","2020-12-01"],"y":[317.6140373,-20.8701473,141.1897344,113.7179903,176.5226509,167.1374215,244.947092,182.7669453,125.9624283,262.6049319,159.1617596,156.2527461,117.9722788,105.5678582,169.5413375,226.3112988,247.8073373,175.6230591,131.3078268,89.89710541,228.0854765,101.3908422,170.5083848,186.7725512,107.936459,110.9045634,-81.84538729,-118.3941885,-49.38289652,15.89818754,-22.63053764,-9.54513605,7.86906651,7.810650356,44.33946232,132.0008842],"type":"scatter","mode":"lines","name":"Y_B","line":{"dash":null},"inherit":true},"44084e2054.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":["2018-01-01","2018-02-01","2018-03-01","2018-04-01","2018-05-01","2018-06-01","2018-07-01","2018-08-01","2018-09-01","2018-10-01","2018-11-01","2018-12-01","2019-01-01","2019-02-01","2019-03-01","2019-04-01","2019-05-01","2019-06-01","2019-07-01","2019-08-01","2019-09-01","2019-10-01","2019-11-01","2019-12-01","2020-01-01","2020-02-01","2020-03-01","2020-04-01","2020-05-01","2020-06-01","2020-07-01","2020-08-01","2020-09-01","2020-10-01","2020-11-01","2020-12-01"],"y":[315.8558438,-9.658095278,117.4487542,117.999855,160.6735837,155.1423775,217.7663513,188.1440285,164.1382236,247.7688856,173.6162444,164.3855236,130.5416192,141.8066382,176.3421326,189.1351113,231.7287356,185.2965453,133.1723221,105.7556634,198.0345412,98.00670423,145.8823254,226.0034574,147.046708,139.6665207,-53.78457857,-116.6708421,-50.38777792,18.03910877,-24.38565329,-22.14744982,-26.70627925,6.051587315,28.75946488,102.2858941],"type":"scatter","mode":"lines","name":"Fit_B","line":{"dash":null},"inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"xaxis":{"domain":[0,1],"automargin":true,"title":"","showgrid":false,"rangeslider":{"type":"date"}},"yaxis":{"domain":[0,1],"automargin":true,"title":"Y","showgrid":false},"title":".","hovermode":"x unified","showlegend":true},"source":"A","config":{"showSendToCloud":false},"data":[{"x":["2018-01-01","2018-02-01","2018-03-01","2018-04-01","2018-05-01","2018-06-01","2018-07-01","2018-08-01","2018-09-01","2018-10-01","2018-11-01","2018-12-01","2019-01-01","2019-02-01","2019-03-01","2019-04-01","2019-05-01","2019-06-01","2019-07-01","2019-08-01","2019-09-01","2019-10-01","2019-11-01","2019-12-01","2020-01-01","2020-02-01","2020-03-01","2020-04-01","2020-05-01","2020-06-01","2020-07-01","2020-08-01","2020-09-01","2020-10-01","2020-11-01","2020-12-01"],"y":[317.6140373,-20.8701473,141.1897344,113.7179903,176.5226509,167.1374215,244.947092,182.7669453,125.9624283,262.6049319,159.1617596,156.2527461,117.9722788,105.5678582,169.5413375,226.3112988,247.8073373,175.6230591,131.3078268,89.89710541,228.0854765,101.3908422,170.5083848,186.7725512,107.936459,110.9045634,-81.84538729,-118.3941885,-49.38289652,15.89818754,-22.63053764,-9.54513605,7.86906651,7.810650356,44.33946232,132.0008842],"type":"scatter","mode":"lines","name":"Y_B","line":{"color":"rgba(31,119,180,1)","dash":[]},"marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2018-01-01","2018-02-01","2018-03-01","2018-04-01","2018-05-01","2018-06-01","2018-07-01","2018-08-01","2018-09-01","2018-10-01","2018-11-01","2018-12-01","2019-01-01","2019-02-01","2019-03-01","2019-04-01","2019-05-01","2019-06-01","2019-07-01","2019-08-01","2019-09-01","2019-10-01","2019-11-01","2019-12-01","2020-01-01","2020-02-01","2020-03-01","2020-04-01","2020-05-01","2020-06-01","2020-07-01","2020-08-01","2020-09-01","2020-10-01","2020-11-01","2020-12-01"],"y":[315.8558438,-9.658095278,117.4487542,117.999855,160.6735837,155.1423775,217.7663513,188.1440285,164.1382236,247.7688856,173.6162444,164.3855236,130.5416192,141.8066382,176.3421326,189.1351113,231.7287356,185.2965453,133.1723221,105.7556634,198.0345412,98.00670423,145.8823254,226.0034574,147.046708,139.6665207,-53.78457857,-116.6708421,-50.38777792,18.03910877,-24.38565329,-22.14744982,-26.70627925,6.051587315,28.75946488,102.2858941],"type":"scatter","mode":"lines","name":"Fit_B","line":{"color":"rgba(255,127,14,1)","dash":[]},"marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 ```
   
 Ниже пример предсказания с доверительными интервалами для разных филиалов (А, B).  
@@ -793,10 +793,11 @@ work_exmp_ts %>%
   
   
 ## 10 Скрипт  
-
+  
+Скрипт одним куском.  
 
 ```r
-## ----setup, include=FALSE---------------------------------------
+## ----setup, include=FALSE--------------------------------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, cache = FALSE)
 library(tidyverse)
 library(fpp3)
@@ -807,9 +808,11 @@ library(forecast)
 library(cowplot)
 library(fable.prophet)
 library(urca) # tests
+library(TSstudio)
+library(plotly)
 
 
-## ----input data-------------------------------------------------
+## ----input data------------------------------------------------------------------------------------
 # nights spend in hotels --------------------------------------------------
 # https://appsso.eurostat.ec.europa.eu/nui/show.do?dataset=tour_occ_nim&lang=en
 df2 = read.csv("Data/tour_occ_nim_1_Data.csv")
@@ -853,7 +856,7 @@ df3_ts = df3 %>%
   
 
 
-## ----nights plot------------------------------------------------
+## ----nights plot-----------------------------------------------------------------------------------
 ggplot(df2_ts,aes(x=Date,y=Value))+
   geom_line(color='grey30',lty=1,size=0.4)+
   # geom_line(data=df2_ts,aes(x=Date,y=Value/1e+7),color='#0066cc',size=0.4)+
@@ -869,19 +872,19 @@ ggplot(df2_ts,aes(x=Date,y=Value))+
     axis.title.y = element_text(size=13))
 
 
-## ----acf pacf nights--------------------------------------------
+## ----acf pacf nights-------------------------------------------------------------------------------
 gg_tsdisplay(df2_ts,plot_type = 'partial')+
   labs(title = "Ночи проведенные в гостиницах")
 
 
-## ----STL--------------------------------------------------------
+## ----STL-------------------------------------------------------------------------------------------
 stl_model = model(df2_ts,
                   decomp = STL(Value ~ trend(window = 30) +
                                  season(window = 50)))
 components(stl_model) %>% autoplot()
 
 
-## ----diff-------------------------------------------------------
+## ----diff------------------------------------------------------------------------------------------
 nights = df2_ts %>% 
   rename('N_nights'='Value')
 nights = mutate(nights, diff = difference(N_nights, order_by = Date))
@@ -889,21 +892,21 @@ gg_tsdisplay(nights, y = diff, plot_type = 'partial')+
   labs(title="Разность ряда")
 
 
-## ----season diff------------------------------------------------
+## ----season diff-----------------------------------------------------------------------------------
 nights = mutate(nights, diff_seas = difference(N_nights, lag = 12, order_by = Date))
 gg_tsdisplay(nights, y = diff_seas, plot_type = 'partial')+
   labs(title="Сезонная разность (12 месяцев)")
 
 
 
-## ----season diff w_out covid------------------------------------
+## ----season diff w_out covid-----------------------------------------------------------------------
 nights = mutate(nights, diff_seas = difference(N_nights, lag = 12, order_by = Date))
 nights_cut = filter(nights, Date < ymd("2020-03-01"))
 gg_tsdisplay(nights_cut, y = diff_seas, plot_type = 'partial')+
   labs(title="Сезонная разность (12 мес) без последних двух лет")
 
 
-## ----ADF test---------------------------------------------------
+## ----ADF test--------------------------------------------------------------------------------------
 #3. ADF с константой
 # H0: ts = ARIMA(p, 1, q) + trend (нестационарный ряд)
 # Ha: ts = ARIMA(p, 0, q) + const (стационарный ряд)
@@ -914,7 +917,7 @@ summary(ur.df(nights$N_nights, type = 'drift',
                                     # сравниваем с первой строкой tau2
 
 
-## ----KPSS test--------------------------------------------------
+## ----KPSS test-------------------------------------------------------------------------------------
 # KPSS с константой
 # H0: ts = mu + stat (стационарный ряд)
 # Ha: ts = mu + stat + rw (нестационарный ряд)
@@ -922,7 +925,7 @@ summary(ur.kpss(nights$N_nights, type = 'mu'))  # H0 не отвергается
                                                 # наблюдаемое меньше чем критическое
 
 
-## ----test-train-------------------------------------------------
+## ----test-train------------------------------------------------------------------------------------
 df_all = left_join(nights,df3_ts)
 df_all = rename(df_all,'unempl'='Value')
 df_all = mutate(df_all, diff_unempl = difference(unempl,1),
@@ -944,7 +947,7 @@ df_train <- filter(df_all_sc, Date < ymd ('2021-01-01'))
 df_test <- filter(df_all_sc, Date >= ymd ('2021-01-01'))
 
 
-## ----fit models-------------------------------------------------
+## ----fit models------------------------------------------------------------------------------------
 fit_models <- df_train %>% 
   model(
     snaive = SNAIVE(N_nights),
@@ -958,11 +961,11 @@ fit_models <- df_train %>%
   )
 
 
-## ----forecast---------------------------------------------------
+## ----forecast--------------------------------------------------------------------------------------
 fct = forecast(fit_models,new_data=df_test)
 
 
-## ----accuracy---------------------------------------------------
+## ----accuracy--------------------------------------------------------------------------------------
 fct %>% 
   accuracy(df_all) %>% 
   arrange(MAPE) %>% 
@@ -972,7 +975,7 @@ fct %>%
   datatable(rownames = FALSE,options=list(pageLength=9), autoHideNavigation = TRUE)
 
 
-## ---------------------------------------------------------------
+## --------------------------------------------------------------------------------------------------
 accuracy(fct,df_all) %>% 
   select(MAPE,.model) %>% 
   ggplot(aes(y=reorder(.model,-MAPE),x=MAPE,label=round(MAPE,0)))+
@@ -983,7 +986,7 @@ accuracy(fct,df_all) %>%
   labs(y="Модели")
 
 
-## ----display best models, fig.height=8, fig.width=10------------
+## ----display best models, fig.height=8, fig.width=10-----------------------------------------------
 df_all_begin_cut = filter(df_all, Date > ymd("2018-01-01"))
 
 # prophet
@@ -1008,11 +1011,11 @@ plt_theta = fct %>%
   theme(axis.text.x = element_text(color='grey',size=10,angle=90))+
   labs(title = "THETA")
 
-plot_grid(plt_prophet,plt_theta,nrow=2)
+cowplot::plot_grid(plt_prophet,plt_theta,nrow=2)
 
 
 
-## ----autoplot unempl--------------------------------------------
+## ----autoplot unempl-------------------------------------------------------------------------------
 ggplot(df3_ts,aes(x=Date,y=Value*10))+
   geom_line(color='grey30',lty=5,size=0.4)+
   geom_line(data=df2_ts,aes(x=Date,y=Value/1e+6),color='#0066cc',size=0.4)+
@@ -1030,7 +1033,7 @@ ggplot(df3_ts,aes(x=Date,y=Value*10))+
 
 
 
-## ----autoplot unempl diff---------------------------------------
+## ----autoplot unempl diff--------------------------------------------------------------------------
 ggplot(df_all,aes(x=Date,y=sdiff_unempl*100))+
   geom_line(color='grey30',lty=5,size=0.4)+
   geom_line(data=df_all,aes(x=Date,y=N_nights/1e+06),color='#0066cc',size=0.4)+
@@ -1048,7 +1051,7 @@ ggplot(df_all,aes(x=Date,y=sdiff_unempl*100))+
 
 
 
-## ----models season----------------------------------------------
+## ----models season---------------------------------------------------------------------------------
 fit_models_sns <- df_train %>% 
   model(
     arima_r = ARIMA(N_nights ~ unempl),
@@ -1060,11 +1063,11 @@ fit_models_sns <- df_train %>%
   )
 
 
-## ----forecast season--------------------------------------------
+## ----forecast season-------------------------------------------------------------------------------
 fct_sns = forecast(fit_models_sns,df_test)
 
 
-## ---------------------------------------------------------------
+## --------------------------------------------------------------------------------------------------
 fct_sns %>% 
   accuracy(df_all) %>% 
   arrange(MAPE) %>% 
@@ -1074,21 +1077,21 @@ fct_sns %>%
   datatable(rownames = FALSE,options=list(pageLength=9), autoHideNavigation = TRUE)
 
 
-## ---------------------------------------------------------------
+## --------------------------------------------------------------------------------------------------
 report(fit_models_sns$arima_r_s[[1]]) # авто с десезон безработицей
 
 
-## ----average models---------------------------------------------
+## ----average models--------------------------------------------------------------------------------
 av_model <- fit_models_sns %>% 
   mutate(mean = (arima110_r + arima_r_s)/2)
 
 
 
-## ----forecast average-------------------------------------------
+## ----forecast average------------------------------------------------------------------------------
 fct_w_av = forecast(av_model,new_data = df_test)
 
 
-## ----compare aver forecast--------------------------------------
+## ----compare aver forecast-------------------------------------------------------------------------
 fct_w_av %>% 
   accuracy(df_all) %>% 
   arrange(MAPE) %>% 
@@ -1097,7 +1100,7 @@ fct_w_av %>%
   datatable(rownames = FALSE,options=list(pageLength=10), autoHideNavigation = TRUE)
 
 
-## ---------------------------------------------------------------
+## --------------------------------------------------------------------------------------------------
 accuracy(fct_w_av,df_all) %>% 
   select(MAPE,.model) %>% 
   ggplot(aes(y=reorder(.model,-MAPE),x=MAPE,label=round(MAPE,0)))+
@@ -1108,7 +1111,7 @@ accuracy(fct_w_av,df_all) %>%
   labs(y="Модели")
 
 
-## ----residuals with unempl--------------------------------------
+## ----residuals with unempl-------------------------------------------------------------------------
 res_reg_un <- av_model %>% 
   augment() %>% 
   select(.resid,.model) %>% 
@@ -1122,7 +1125,7 @@ res_prophet <- fit_models %>%
 resid_all = bind_rows(res_prophet,res_reg_un)
 
 
-## ----plot residuals---------------------------------------------
+## ----plot residuals--------------------------------------------------------------------------------
 ggplot(resid_all,aes(x=Date,y=.resid,color=.model))+
   geom_line()+
   scale_color_manual(values = c("#0066cc","#ffcc00"))+
@@ -1138,7 +1141,7 @@ ggplot(resid_all,aes(x=Date,y=.resid,color=.model))+
     axis.text.y = element_text(color='grey30',size=10),
     axis.title.y = element_text(size=13))
 
-## ----residuals density plot-------------------------------------
+## ----residuals density plot------------------------------------------------------------------------
 ggplot(resid_all,aes(x=.resid,fill=.model))+
   geom_histogram(alpha=0.7, position = 'dodge',color='#0066cc')+
   scale_fill_manual(values = c("#0066cc","#ffcc00"))+
@@ -1155,7 +1158,7 @@ ggplot(resid_all,aes(x=.resid,fill=.model))+
   scale_y_continuous(expand = expansion(mult=c(0,0.1)))
 
 
-## ----plot final result, fig.height=8, fig.width=10--------------
+## ----plot final result, fig.height=8, fig.width=10-------------------------------------------------
 
 # ARIMA
 plt_arima110_r = fct_w_av %>% 
@@ -1168,17 +1171,17 @@ plt_arima110_r = fct_w_av %>%
   theme(axis.text.x = element_text(color='grey',size=10,angle=90))+
   labs(title = "ARIMA ~ безработица (110)(011)  ")
 
-plot_grid(plt_arima110_r,plt_prophet,nrow=2)
+cowplot::plot_grid(plt_arima110_r,plt_prophet,nrow=2)
 
 
 
-## ----predict future---------------------------------------------
+## ----predict future--------------------------------------------------------------------------------
 # 
 fit_full <- model(df_all,
   ARIMA(N_nights ~ unempl + pdq(1,1,0) + PDQ (0,1,1)))
 
 
-## ----fit unempl-------------------------------------------------
+## ----fit unempl------------------------------------------------------------------------------------
 fit_models_unemp <- df_train %>% 
   model(
     snaive = SNAIVE(unempl),
@@ -1191,11 +1194,11 @@ fit_models_unemp <- df_train %>%
                 SNAIVE(season_year))
   )
 
-## ----predict unempl---------------------------------------------
+## ----predict unempl--------------------------------------------------------------------------------
 fct_unempl = forecast(fit_models_unemp, new_data=df_test)
 
 
-## ----unempl accuracy--------------------------------------------
+## ----unempl accuracy-------------------------------------------------------------------------------
 fct_unempl %>% 
   accuracy(df_all) %>% 
   arrange(MAPE) %>% 
@@ -1205,7 +1208,7 @@ fct_unempl %>%
   datatable(rownames = FALSE,options=list(pageLength=9), autoHideNavigation = TRUE)
 
 
-## ---------------------------------------------------------------
+## --------------------------------------------------------------------------------------------------
 fit_models_unemp_all <- df_all %>% 
   model(
     theta_decomp = decomposition_model(
@@ -1216,7 +1219,7 @@ fit_models_unemp_all <- df_all %>%
 unempl_fct = fit_models_unemp_all %>% select(theta_decomp) %>% forecast(h=24)
 
 
-## ----unempl graph forecast, fig.width=10, fig.height=6----------
+## ----unempl graph forecast, fig.width=10, fig.height=6---------------------------------------------
 unempl_fct %>% 
   autoplot(color="#0066cc",alpha=0.7)+
   autolayer(df_all_begin_cut,.vars = unempl)+
@@ -1227,16 +1230,16 @@ unempl_fct %>%
   labs(title="Безработица, предсказание в будущее",
        subtitle = "THETA",y="",x="")
 
-## ---------------------------------------------------------------
+## --------------------------------------------------------------------------------------------------
 unempl_fin = unempl_fct[,c(2,4)] %>% 
 rename('unempl'='.mean')
 
 
-## ---------------------------------------------------------------
+## --------------------------------------------------------------------------------------------------
 fct_future = fit_full %>% forecast(new_data=unempl_fin)
 
 
-## ----plot future, fig.width=10, fig.height=6--------------------
+## ----plot future, fig.width=10, fig.height=6-------------------------------------------------------
 fct_future %>% 
   autoplot(color="#0066cc",alpha=0.7, lty=2)+
   autolayer(df_all_begin_cut,.vars = unempl*1e+7,lty=1,color='grey60')+
@@ -1255,5 +1258,46 @@ fct_future %>%
     axis.text.x = element_text(color='grey30',size=10,angle=90),
     axis.text.y = element_text(color='grey30',size=10),
     axis.title.y = element_text(size=13))
+
+
+
+## ----import extra and vis--------------------------------------------------------------------------
+work_exmp = read.csv(file="Data/work_export_example.csv")
+
+
+## ----work convert to ts----------------------------------------------------------------------------
+work_exmp_ts = work_exmp %>% 
+  mutate(Date = yearmonth(Date)) %>% 
+  as_tsibble(index = Date,key = Country)
+
+## ----plot prediction-------------------------------------------------------------------------------
+work_exmp_ts %>% 
+  select(Date,Y,Fit,Country) %>%
+  filter(Country == "B") %>% 
+  pivot_wider(id_cols = Date, 
+              names_from = Country,
+              values_from = c(Y,Fit)) %>% 
+  mutate(Date = as.Date(Date)) %>% 
+  TSstudio::ts_plot(Ytitle="Y", slider = TRUE) %>% 
+  layout(hovermode = "x unified")
+
+
+## ----fig.height=8,fig.width=10---------------------------------------------------------------------
+work_exmp_ts %>% 
+  pivot_longer(cols = c(Y,Fit)) %>%
+  # View()
+  ggplot()+
+   geom_ribbon(aes(x=Date,ymin=lower,ymax=upper),fill='#0066cc',alpha=0.3,
+              outline.type = 'lower')+
+  geom_line(aes(x=Date,y=value,lty=name,color=name))+
+ 
+  facet_wrap(.~Country,nrow = 2,scales = "free_y")+
+  theme_cowplot()+
+  background_grid()+
+  scale_linetype_manual(values = c(2,1),guide = 'none')+
+  scale_color_manual(values = c('red','black'))+
+  labs(y="Значение",x="",title = "Пример предсказания",subtitle = "с доверительным интервалом 95%",
+       color="Значение: ")+
+  theme(legend.position = 'top')
 ```
 

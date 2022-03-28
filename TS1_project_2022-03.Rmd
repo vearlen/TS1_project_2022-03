@@ -644,9 +644,10 @@ work_exmp_ts %>%
   
   
 ## 10 Скрипт  
-
-```{r all script, eval=FALSE}
-## ----setup, include=FALSE---------------------------------------
+  
+Скрипт одним куском.  
+```{r, eval=FALSE}
+## ----setup, include=FALSE--------------------------------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, cache = FALSE)
 library(tidyverse)
 library(fpp3)
@@ -657,9 +658,11 @@ library(forecast)
 library(cowplot)
 library(fable.prophet)
 library(urca) # tests
+library(TSstudio)
+library(plotly)
 
 
-## ----input data-------------------------------------------------
+## ----input data------------------------------------------------------------------------------------
 # nights spend in hotels --------------------------------------------------
 # https://appsso.eurostat.ec.europa.eu/nui/show.do?dataset=tour_occ_nim&lang=en
 df2 = read.csv("Data/tour_occ_nim_1_Data.csv")
@@ -703,7 +706,7 @@ df3_ts = df3 %>%
   
 
 
-## ----nights plot------------------------------------------------
+## ----nights plot-----------------------------------------------------------------------------------
 ggplot(df2_ts,aes(x=Date,y=Value))+
   geom_line(color='grey30',lty=1,size=0.4)+
   # geom_line(data=df2_ts,aes(x=Date,y=Value/1e+7),color='#0066cc',size=0.4)+
@@ -719,19 +722,19 @@ ggplot(df2_ts,aes(x=Date,y=Value))+
     axis.title.y = element_text(size=13))
 
 
-## ----acf pacf nights--------------------------------------------
+## ----acf pacf nights-------------------------------------------------------------------------------
 gg_tsdisplay(df2_ts,plot_type = 'partial')+
   labs(title = "Ночи проведенные в гостиницах")
 
 
-## ----STL--------------------------------------------------------
+## ----STL-------------------------------------------------------------------------------------------
 stl_model = model(df2_ts,
                   decomp = STL(Value ~ trend(window = 30) +
                                  season(window = 50)))
 components(stl_model) %>% autoplot()
 
 
-## ----diff-------------------------------------------------------
+## ----diff------------------------------------------------------------------------------------------
 nights = df2_ts %>% 
   rename('N_nights'='Value')
 nights = mutate(nights, diff = difference(N_nights, order_by = Date))
@@ -739,21 +742,21 @@ gg_tsdisplay(nights, y = diff, plot_type = 'partial')+
   labs(title="Разность ряда")
 
 
-## ----season diff------------------------------------------------
+## ----season diff-----------------------------------------------------------------------------------
 nights = mutate(nights, diff_seas = difference(N_nights, lag = 12, order_by = Date))
 gg_tsdisplay(nights, y = diff_seas, plot_type = 'partial')+
   labs(title="Сезонная разность (12 месяцев)")
 
 
 
-## ----season diff w_out covid------------------------------------
+## ----season diff w_out covid-----------------------------------------------------------------------
 nights = mutate(nights, diff_seas = difference(N_nights, lag = 12, order_by = Date))
 nights_cut = filter(nights, Date < ymd("2020-03-01"))
 gg_tsdisplay(nights_cut, y = diff_seas, plot_type = 'partial')+
   labs(title="Сезонная разность (12 мес) без последних двух лет")
 
 
-## ----ADF test---------------------------------------------------
+## ----ADF test--------------------------------------------------------------------------------------
 #3. ADF с константой
 # H0: ts = ARIMA(p, 1, q) + trend (нестационарный ряд)
 # Ha: ts = ARIMA(p, 0, q) + const (стационарный ряд)
@@ -764,7 +767,7 @@ summary(ur.df(nights$N_nights, type = 'drift',
                                     # сравниваем с первой строкой tau2
 
 
-## ----KPSS test--------------------------------------------------
+## ----KPSS test-------------------------------------------------------------------------------------
 # KPSS с константой
 # H0: ts = mu + stat (стационарный ряд)
 # Ha: ts = mu + stat + rw (нестационарный ряд)
@@ -772,7 +775,7 @@ summary(ur.kpss(nights$N_nights, type = 'mu'))  # H0 не отвергается
                                                 # наблюдаемое меньше чем критическое
 
 
-## ----test-train-------------------------------------------------
+## ----test-train------------------------------------------------------------------------------------
 df_all = left_join(nights,df3_ts)
 df_all = rename(df_all,'unempl'='Value')
 df_all = mutate(df_all, diff_unempl = difference(unempl,1),
@@ -794,7 +797,7 @@ df_train <- filter(df_all_sc, Date < ymd ('2021-01-01'))
 df_test <- filter(df_all_sc, Date >= ymd ('2021-01-01'))
 
 
-## ----fit models-------------------------------------------------
+## ----fit models------------------------------------------------------------------------------------
 fit_models <- df_train %>% 
   model(
     snaive = SNAIVE(N_nights),
@@ -808,11 +811,11 @@ fit_models <- df_train %>%
   )
 
 
-## ----forecast---------------------------------------------------
+## ----forecast--------------------------------------------------------------------------------------
 fct = forecast(fit_models,new_data=df_test)
 
 
-## ----accuracy---------------------------------------------------
+## ----accuracy--------------------------------------------------------------------------------------
 fct %>% 
   accuracy(df_all) %>% 
   arrange(MAPE) %>% 
@@ -822,7 +825,7 @@ fct %>%
   datatable(rownames = FALSE,options=list(pageLength=9), autoHideNavigation = TRUE)
 
 
-## ---------------------------------------------------------------
+## --------------------------------------------------------------------------------------------------
 accuracy(fct,df_all) %>% 
   select(MAPE,.model) %>% 
   ggplot(aes(y=reorder(.model,-MAPE),x=MAPE,label=round(MAPE,0)))+
@@ -833,7 +836,7 @@ accuracy(fct,df_all) %>%
   labs(y="Модели")
 
 
-## ----display best models, fig.height=8, fig.width=10------------
+## ----display best models, fig.height=8, fig.width=10-----------------------------------------------
 df_all_begin_cut = filter(df_all, Date > ymd("2018-01-01"))
 
 # prophet
@@ -858,11 +861,11 @@ plt_theta = fct %>%
   theme(axis.text.x = element_text(color='grey',size=10,angle=90))+
   labs(title = "THETA")
 
-plot_grid(plt_prophet,plt_theta,nrow=2)
+cowplot::plot_grid(plt_prophet,plt_theta,nrow=2)
 
 
 
-## ----autoplot unempl--------------------------------------------
+## ----autoplot unempl-------------------------------------------------------------------------------
 ggplot(df3_ts,aes(x=Date,y=Value*10))+
   geom_line(color='grey30',lty=5,size=0.4)+
   geom_line(data=df2_ts,aes(x=Date,y=Value/1e+6),color='#0066cc',size=0.4)+
@@ -880,7 +883,7 @@ ggplot(df3_ts,aes(x=Date,y=Value*10))+
 
 
 
-## ----autoplot unempl diff---------------------------------------
+## ----autoplot unempl diff--------------------------------------------------------------------------
 ggplot(df_all,aes(x=Date,y=sdiff_unempl*100))+
   geom_line(color='grey30',lty=5,size=0.4)+
   geom_line(data=df_all,aes(x=Date,y=N_nights/1e+06),color='#0066cc',size=0.4)+
@@ -898,7 +901,7 @@ ggplot(df_all,aes(x=Date,y=sdiff_unempl*100))+
 
 
 
-## ----models season----------------------------------------------
+## ----models season---------------------------------------------------------------------------------
 fit_models_sns <- df_train %>% 
   model(
     arima_r = ARIMA(N_nights ~ unempl),
@@ -910,11 +913,11 @@ fit_models_sns <- df_train %>%
   )
 
 
-## ----forecast season--------------------------------------------
+## ----forecast season-------------------------------------------------------------------------------
 fct_sns = forecast(fit_models_sns,df_test)
 
 
-## ---------------------------------------------------------------
+## --------------------------------------------------------------------------------------------------
 fct_sns %>% 
   accuracy(df_all) %>% 
   arrange(MAPE) %>% 
@@ -924,21 +927,21 @@ fct_sns %>%
   datatable(rownames = FALSE,options=list(pageLength=9), autoHideNavigation = TRUE)
 
 
-## ---------------------------------------------------------------
+## --------------------------------------------------------------------------------------------------
 report(fit_models_sns$arima_r_s[[1]]) # авто с десезон безработицей
 
 
-## ----average models---------------------------------------------
+## ----average models--------------------------------------------------------------------------------
 av_model <- fit_models_sns %>% 
   mutate(mean = (arima110_r + arima_r_s)/2)
 
 
 
-## ----forecast average-------------------------------------------
+## ----forecast average------------------------------------------------------------------------------
 fct_w_av = forecast(av_model,new_data = df_test)
 
 
-## ----compare aver forecast--------------------------------------
+## ----compare aver forecast-------------------------------------------------------------------------
 fct_w_av %>% 
   accuracy(df_all) %>% 
   arrange(MAPE) %>% 
@@ -947,7 +950,7 @@ fct_w_av %>%
   datatable(rownames = FALSE,options=list(pageLength=10), autoHideNavigation = TRUE)
 
 
-## ---------------------------------------------------------------
+## --------------------------------------------------------------------------------------------------
 accuracy(fct_w_av,df_all) %>% 
   select(MAPE,.model) %>% 
   ggplot(aes(y=reorder(.model,-MAPE),x=MAPE,label=round(MAPE,0)))+
@@ -958,7 +961,7 @@ accuracy(fct_w_av,df_all) %>%
   labs(y="Модели")
 
 
-## ----residuals with unempl--------------------------------------
+## ----residuals with unempl-------------------------------------------------------------------------
 res_reg_un <- av_model %>% 
   augment() %>% 
   select(.resid,.model) %>% 
@@ -972,7 +975,7 @@ res_prophet <- fit_models %>%
 resid_all = bind_rows(res_prophet,res_reg_un)
 
 
-## ----plot residuals---------------------------------------------
+## ----plot residuals--------------------------------------------------------------------------------
 ggplot(resid_all,aes(x=Date,y=.resid,color=.model))+
   geom_line()+
   scale_color_manual(values = c("#0066cc","#ffcc00"))+
@@ -988,7 +991,7 @@ ggplot(resid_all,aes(x=Date,y=.resid,color=.model))+
     axis.text.y = element_text(color='grey30',size=10),
     axis.title.y = element_text(size=13))
 
-## ----residuals density plot-------------------------------------
+## ----residuals density plot------------------------------------------------------------------------
 ggplot(resid_all,aes(x=.resid,fill=.model))+
   geom_histogram(alpha=0.7, position = 'dodge',color='#0066cc')+
   scale_fill_manual(values = c("#0066cc","#ffcc00"))+
@@ -1005,7 +1008,7 @@ ggplot(resid_all,aes(x=.resid,fill=.model))+
   scale_y_continuous(expand = expansion(mult=c(0,0.1)))
 
 
-## ----plot final result, fig.height=8, fig.width=10--------------
+## ----plot final result, fig.height=8, fig.width=10-------------------------------------------------
 
 # ARIMA
 plt_arima110_r = fct_w_av %>% 
@@ -1018,17 +1021,17 @@ plt_arima110_r = fct_w_av %>%
   theme(axis.text.x = element_text(color='grey',size=10,angle=90))+
   labs(title = "ARIMA ~ безработица (110)(011)  ")
 
-plot_grid(plt_arima110_r,plt_prophet,nrow=2)
+cowplot::plot_grid(plt_arima110_r,plt_prophet,nrow=2)
 
 
 
-## ----predict future---------------------------------------------
+## ----predict future--------------------------------------------------------------------------------
 # 
 fit_full <- model(df_all,
   ARIMA(N_nights ~ unempl + pdq(1,1,0) + PDQ (0,1,1)))
 
 
-## ----fit unempl-------------------------------------------------
+## ----fit unempl------------------------------------------------------------------------------------
 fit_models_unemp <- df_train %>% 
   model(
     snaive = SNAIVE(unempl),
@@ -1041,11 +1044,11 @@ fit_models_unemp <- df_train %>%
                 SNAIVE(season_year))
   )
 
-## ----predict unempl---------------------------------------------
+## ----predict unempl--------------------------------------------------------------------------------
 fct_unempl = forecast(fit_models_unemp, new_data=df_test)
 
 
-## ----unempl accuracy--------------------------------------------
+## ----unempl accuracy-------------------------------------------------------------------------------
 fct_unempl %>% 
   accuracy(df_all) %>% 
   arrange(MAPE) %>% 
@@ -1055,7 +1058,7 @@ fct_unempl %>%
   datatable(rownames = FALSE,options=list(pageLength=9), autoHideNavigation = TRUE)
 
 
-## ---------------------------------------------------------------
+## --------------------------------------------------------------------------------------------------
 fit_models_unemp_all <- df_all %>% 
   model(
     theta_decomp = decomposition_model(
@@ -1066,7 +1069,7 @@ fit_models_unemp_all <- df_all %>%
 unempl_fct = fit_models_unemp_all %>% select(theta_decomp) %>% forecast(h=24)
 
 
-## ----unempl graph forecast, fig.width=10, fig.height=6----------
+## ----unempl graph forecast, fig.width=10, fig.height=6---------------------------------------------
 unempl_fct %>% 
   autoplot(color="#0066cc",alpha=0.7)+
   autolayer(df_all_begin_cut,.vars = unempl)+
@@ -1077,16 +1080,16 @@ unempl_fct %>%
   labs(title="Безработица, предсказание в будущее",
        subtitle = "THETA",y="",x="")
 
-## ---------------------------------------------------------------
+## --------------------------------------------------------------------------------------------------
 unempl_fin = unempl_fct[,c(2,4)] %>% 
 rename('unempl'='.mean')
 
 
-## ---------------------------------------------------------------
+## --------------------------------------------------------------------------------------------------
 fct_future = fit_full %>% forecast(new_data=unempl_fin)
 
 
-## ----plot future, fig.width=10, fig.height=6--------------------
+## ----plot future, fig.width=10, fig.height=6-------------------------------------------------------
 fct_future %>% 
   autoplot(color="#0066cc",alpha=0.7, lty=2)+
   autolayer(df_all_begin_cut,.vars = unempl*1e+7,lty=1,color='grey60')+
@@ -1105,5 +1108,48 @@ fct_future %>%
     axis.text.x = element_text(color='grey30',size=10,angle=90),
     axis.text.y = element_text(color='grey30',size=10),
     axis.title.y = element_text(size=13))
+
+
+
+## ----import extra and vis--------------------------------------------------------------------------
+work_exmp = read.csv(file="Data/work_export_example.csv")
+
+
+## ----work convert to ts----------------------------------------------------------------------------
+work_exmp_ts = work_exmp %>% 
+  mutate(Date = yearmonth(Date)) %>% 
+  as_tsibble(index = Date,key = Country)
+
+## ----plot prediction-------------------------------------------------------------------------------
+work_exmp_ts %>% 
+  select(Date,Y,Fit,Country) %>%
+  filter(Country == "B") %>% 
+  pivot_wider(id_cols = Date, 
+              names_from = Country,
+              values_from = c(Y,Fit)) %>% 
+  mutate(Date = as.Date(Date)) %>% 
+  TSstudio::ts_plot(Ytitle="Y", slider = TRUE) %>% 
+  layout(hovermode = "x unified")
+
+
+## ----fig.height=8,fig.width=10---------------------------------------------------------------------
+work_exmp_ts %>% 
+  pivot_longer(cols = c(Y,Fit)) %>%
+  # View()
+  ggplot()+
+   geom_ribbon(aes(x=Date,ymin=lower,ymax=upper),fill='#0066cc',alpha=0.3,
+              outline.type = 'lower')+
+  geom_line(aes(x=Date,y=value,lty=name,color=name))+
+ 
+  facet_wrap(.~Country,nrow = 2,scales = "free_y")+
+  theme_cowplot()+
+  background_grid()+
+  scale_linetype_manual(values = c(2,1),guide = 'none')+
+  scale_color_manual(values = c('red','black'))+
+  labs(y="Значение",x="",title = "Пример предсказания",subtitle = "с доверительным интервалом 95%",
+       color="Значение: ")+
+  theme(legend.position = 'top')
+
+
 ```
 
