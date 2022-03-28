@@ -23,6 +23,8 @@ library(forecast)
 library(cowplot)
 library(fable.prophet)
 library(urca) # tests
+library(TSstudio)
+library(plotly)
 ```
 
 ## 1 Импорт
@@ -114,7 +116,7 @@ stl_model = model(df2_ts,
 components(stl_model) %>% autoplot()
 ```
 
-Визуализируем ряд в первых разностях.
+Визуализируем ряд в первых разностях, так он даже выглядит практически стационарным, хоть и очень сезонным.  
 
 ```{r diff}
 nights = df2_ts %>% 
@@ -293,7 +295,7 @@ plt_theta = fct %>%
   theme(axis.text.x = element_text(color='grey',size=10,angle=90))+
   labs(title = "THETA")
 
-plot_grid(plt_prophet,plt_theta,nrow=2)
+cowplot::plot_grid(plt_prophet,plt_theta,nrow=2)
 
 ```
 
@@ -480,7 +482,7 @@ plt_arima110_r = fct_w_av %>%
   theme(axis.text.x = element_text(color='grey',size=10,angle=90))+
   labs(title = "ARIMA ~ безработица (110)(011)  ")
 
-plot_grid(plt_arima110_r,plt_prophet,nrow=2)
+cowplot::plot_grid(plt_arima110_r,plt_prophet,nrow=2)
 
 ```
 
@@ -587,7 +589,60 @@ fct_future %>%
 ```
 
 ## 9 Случай из жизни  
+  
+Был у меня опыт, который, отчасти и привел меня к обучению на этой магистратуре. Мне поставили задачу сделать прогноз некого финансового параметра компании для моделирования what-if сценариев. Т.е. временной ряд должен был зависеть от нескольких других параметров, временных рядов.    
 
+Ну и тогда я не придумал ничего лучше чем взять линейную регрессию и попробовать предсказать ряд с помощью неё.  
+
+По мере погружения в проблему, я познакомился с книжкой [Rob'a Hyndman'a](https://otexts.com/fpp3/) и стал пробовать какие-то штуки оттуда, не очень понимая что к чему, если честно. Это, в числе прочего, и послужило мотивацией поучиться этому более систематично. 
+
+Что касается трудностей, думаю они были традиционные. Мало данных, плюс я смотрел на ряды в  2018-2020 годы, а 2020 год, по понятным причинам, аномальный. Его очень трудно предсказывать и учитывать. Тем не менее модели я построил, но качество не удовлетворило моих "заказчиков", они хотели ошибку в пределах 5%, а у меня в лучшем случае вышло 10%, а в среднем в районе 25%.
+
+Ниже показаны анонимизированные примеры результатов предсказаний моей модели. Для этого я использовал алгоритм TSLM из пакета fable.
+
+```{r import extra and vis}
+work_exmp = read.csv(file="Data/work_export_example.csv")
+```
+
+```{r work convert to ts}
+work_exmp_ts = work_exmp %>% 
+  mutate(Date = yearmonth(Date)) %>% 
+  as_tsibble(index = Date,key = Country)
+```
+```{r plot prediction}
+work_exmp_ts %>% 
+  select(Date,Y,Fit,Country) %>%
+  filter(Country == "B") %>% 
+  pivot_wider(id_cols = Date, 
+              names_from = Country,
+              values_from = c(Y,Fit)) %>% 
+  mutate(Date = as.Date(Date)) %>% 
+  TSstudio::ts_plot(Ytitle="Y", slider = TRUE) %>% 
+  layout(hovermode = "x unified")
+```
+  
+Ниже пример предсказания с доверительными интервалами для разных филиалов (А, B).  
+  
+```{r fig.height=8,fig.width=10}
+work_exmp_ts %>% 
+  pivot_longer(cols = c(Y,Fit)) %>%
+  # View()
+  ggplot()+
+   geom_ribbon(aes(x=Date,ymin=lower,ymax=upper),fill='#0066cc',alpha=0.3,
+              outline.type = 'lower')+
+  geom_line(aes(x=Date,y=value,lty=name,color=name))+
+ 
+  facet_wrap(.~Country,nrow = 2,scales = "free_y")+
+  theme_cowplot()+
+  background_grid()+
+  scale_linetype_manual(values = c(2,1),guide = 'none')+
+  scale_color_manual(values = c('red','black'))+
+  labs(y="Значение",x="",title = "Пример предсказания",subtitle = "с доверительным интервалом 95%",
+       color="Значение: ")+
+  theme(legend.position = 'top')
+```
+  
+  
 ## 10 Скрипт  
 
 ```{r all script, eval=FALSE}
